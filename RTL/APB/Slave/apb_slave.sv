@@ -48,7 +48,6 @@ module apb_slave #(
 	
     // Default outputs
     assign o_pslverr = 1'b0;        // Always OKAY, no error
-    // assign o_pready  = (state == IDLE) ? 1'b0 : 1'b1;
     assign o_prdata  = (i_rd_valid) ? i_rd_data : 32'b0;
 
     // State Machine
