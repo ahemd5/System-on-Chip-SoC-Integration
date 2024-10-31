@@ -1,18 +1,18 @@
 // APB (Advanced Peripheral Bus) Slave Module
 module apb_slave #(
-    parameter addr_width = 32,     // Address width parameter
-              data_width = 32      // Data width parameter
+    parameter ADDR_WIDTH = 32,     // Address width parameter
+              DATA_WIDTH = 32      // Data width parameter
 )(
     input  logic                  i_clk_apb,      // APB clock signal
     input  logic                  i_rstn_apb,     // APB active-low reset signal
 	
     // APB protocol interface signals
     input  logic                  i_pwrite,       // Write enable signal (1 for write, 0 for read)
-    input  logic [data_width-1:0] i_pwdata,       // Write data input
-    input  logic [addr_width-1:0] i_paddr,        // Address input
+    input  logic [DATA_WIDTH-1:0] i_pwdata,       // Write data input
+    input  logic [ADDR_WIDTH-1:0] i_paddr,        // Address input
     input  logic                  i_psel,         // Peripheral select (active high)
     input  logic                  i_penable,      // Enable signal for APB transaction
-    output       [data_width-1:0] o_prdata,       // Read data output
+    output       [DATA_WIDTH-1:0] o_prdata,       // Read data output
     output                        o_pslverr,      // Slave error indicator
     output reg                    o_pready,       // Ready signal from slave to master 
 	
@@ -21,11 +21,11 @@ module apb_slave #(
     input  logic                  i_ready,        // Ready to new transaction
 	
     // Transaction signals
-    output reg   [addr_width-1:0] o_addr,         // Address for transaction
+    output reg   [ADDR_WIDTH-1:0] o_addr,         // Address for transaction
     output reg                    o_rd0_wr1,      // Read/write indicator (0 for read, 1 for write)
-    output reg   [data_width-1:0] o_wr_data,      // Data to write in write transactions
+    output reg   [DATA_WIDTH-1:0] o_wr_data,      // Data to write in write transactions
     input  logic                  i_rd_valid,     // Read valid signal indicating read data is valid  
-    input  logic [data_width-1:0] i_rd_data       // Data from read transaction
+    input  logic [DATA_WIDTH-1:0] i_rd_data       // Data from read transaction
 );
 
     // FSM states definition
