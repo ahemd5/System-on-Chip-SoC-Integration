@@ -12,8 +12,8 @@ module apb_slave #(
     input  logic [ADDR_WIDTH-1:0] i_paddr,        // Address input
     input  logic                  i_psel,         // Peripheral select (active high)
     input  logic                  i_penable,      // Enable signal for APB transaction
-    output       [DATA_WIDTH-1:0] o_prdata,       // Read data output
-    output                        o_pslverr,      // Slave error indicator
+    output logic [DATA_WIDTH-1:0] o_prdata,       // Read data output
+    output logic                       o_pslverr,      // Slave error indicator
     output reg                    o_pready,       // Ready signal from slave to master 
 	
     // Handshaking interface signals
