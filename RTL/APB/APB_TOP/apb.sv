@@ -1,7 +1,7 @@
 module apb #(
     // Parameters
-    parameter addr_width = 32,
-    parameter data_width = 32
+    parameter ADDR_WIDTH = 32,
+    parameter DATA_WIDTH = 32
 )(	
     // Clock and Reset
     input logic i_clk_apb,
@@ -9,37 +9,37 @@ module apb #(
 
     // Master signals
     input logic i_valid,
-    input logic [addr_width-1:0] i_addr,
+    input logic [ADDR_WIDTH-1:0] i_addr,
     input logic i_rd0_wr1,
-    input logic [data_width-1:0] i_wr_data,
+    input logic [DATA_WIDTH-1:0] i_wr_data,
     output reg o_ready,
     output reg o_rd_valid,
-    output reg [data_width-1:0] o_rd_data,
+    output reg [DATA_WIDTH-1:0] o_rd_data,
 
     // Slave signals
     output reg o_valid,
-    output reg [addr_width-1:0] o_addr,
+    output reg [ADDR_WIDTH-1:0] o_addr,
     output reg o_rd0_wr1,
-    output reg [data_width-1:0] o_wr_data,
+    output reg [DATA_WIDTH-1:0] o_wr_data,
     input logic i_ready,
     input logic i_rd_valid,
-    input logic [data_width-1:0] i_rd_data
+    input logic [DATA_WIDTH-1:0] i_rd_data
 );
 
     // APB interface signals
     logic psel;
     logic penable;
     logic pwrite;
-    logic [addr_width-1:0] paddr;
-    logic [data_width-1:0] pwdata;
-    logic [data_width-1:0] prdata;
+    logic [ADDR_WIDTH-1:0] paddr;
+    logic [DATA_WIDTH-1:0] pwdata;
+    logic [DATA_WIDTH-1:0] prdata;
     logic pready;
     logic pslverr;
 	
 	// DUT instantiation (APB Master)
     apb_master #(
-        .addr_width(addr_width),
-        .data_width(data_width)
+        .addr_width(ADDR_WIDTH),
+        .data_width(DATA_WIDTH)
     ) master_inst (
         .i_clk_apb(i_clk_apb),
         .i_rstn_apb(i_rstn_apb),
@@ -62,8 +62,8 @@ module apb #(
 
     // DUT instantiation (APB Slave)
     apb_slave #(
-        .addr_width(addr_width),
-        .data_width(data_width)
+        .addr_width(ADDR_WIDTH),
+        .data_width(DATA_WIDTH)
     ) slave_inst (
         .i_clk_apb(i_clk_apb),
         .i_rstn_apb(i_rstn_apb),
