@@ -9,7 +9,7 @@ import apb_scoreboard_pkg::*;
 import apb_coverage_pkg::*;
 import master_apb_sequencer_pkg::*; 
 import slave_apb_sequencer_pkg::*; 
-  
+import apb_config_pkg::*;
 class apb_env extends uvm_env;
    `uvm_component_utils(apb_env)
    
@@ -20,6 +20,7 @@ class apb_env extends uvm_env;
    master_apb_sequencer mast_seqr;
    slave_apb_sequencer slv_seqr;
    
+
    function new(string name = "apb_env", uvm_component parent = null);
       super.new(name, parent);
    endfunction
@@ -32,6 +33,7 @@ class apb_env extends uvm_env;
       cov = apb_coverage::type_id::create("cov", this);
 	  mast_seqr = master_apb_sequencer::type_id::create("mast_seqr", this);
 	  slv_seqr =  slave_apb_sequencer::type_id::create("slv_seqr", this);
+     
    endfunction // build_phase
    
    function void connect_phase(uvm_phase phase);

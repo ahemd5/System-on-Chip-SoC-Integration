@@ -26,7 +26,7 @@ class master_apb_monitor extends uvm_monitor;
       super.run_phase(phase);
       forever begin
          rsp_seq_item = master_apb_seq_item::type_id::create("rsp_seq_item");
-         @(negedge mast_apb_vif.i_clk_apb);
+         @(posedge mast_apb_vif.i_clk_apb);
          rsp_seq_item.i_rstn_apb = mast_apb_vif.i_rstn_apb;
 		 rsp_seq_item.i_valid = mast_apb_vif.i_valid;
 		 rsp_seq_item.i_rd0_wr1 = mast_apb_vif.i_rd0_wr1;

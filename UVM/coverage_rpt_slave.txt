@@ -1,0 +1,355 @@
+Coverage Report by instance with details
+
+=================================================================================
+=== Instance: /\apb_top#dut2 
+=== Design Unit: work.apb_slave
+=================================================================================
+
+Assertion Coverage:
+    Assertions                       6         5         1    83.33%
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/\apb_top#dut2 /assert__valid_assertion_in_idle
+                     apb_slave.sv(153)                  0          1
+/\apb_top#dut2 /assert__pready_assertion
+                     apb_slave.sv(144)                  0          1
+/\apb_top#dut2 /assert__read_state_data_control
+                     apb_slave.sv(136)                  0          1
+/\apb_top#dut2 /assert__write_state_data_control
+                     apb_slave.sv(127)                  1          1
+/\apb_top#dut2 /assert__valid_transition_from_idle
+                     apb_slave.sv(118)                  0          1
+/\apb_top#dut2 /assert__reset_behavior
+                     apb_slave.sv(110)                  0          1
+Branch Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        20        20         0   100.00%
+
+================================Branch Details================================
+
+Branch Coverage for instance /\apb_top#dut2 
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File apb_slave.sv
+------------------------------------IF Branch------------------------------------
+    30                                      2000     Count coming in to IF
+    30              1                       1798         assign slv_inter.o_prdata  = (slv_inter.i_rd_valid) ? slv_inter.i_rd_data : 32'b0;
+    30              2                        202         assign slv_inter.o_prdata  = (slv_inter.i_rd_valid) ? slv_inter.i_rd_data : 32'b0;
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    34                                      1234     Count coming in to IF
+    34              1                        320             if (!slv_inter.i_rstn_apb)
+    36              1                        914             else
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------CASE Branch------------------------------------
+    42                                      2586     Count coming in to CASE
+    43              1                       1113                 IDLE: begin
+    69              1                        747                 READ: begin
+    84              1                        725                 WRITE: begin
+    99              1                          1                 default: next_state = IDLE; // Default to IDLE state
+Branch totals: 4 hits of 4 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    44                                      1113     Count coming in to IF
+    44              1                        555                     if (slv_inter.i_psel) begin // If peripheral is selected
+    58              1                        558                     end else begin // If peripheral is not selected
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    49                                       555     Count coming in to IF
+    49              1                        278                         if (slv_inter.i_pwrite) begin  // Write transaction
+    53              1                        277                         end else begin // Read transaction
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    52                                       278     Count coming in to IF
+    52              1                        215                             next_state = (slv_inter.i_ready) ? WRITE : IDLE;
+    52              2                         63                             next_state = (slv_inter.i_ready) ? WRITE : IDLE;
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    56                                       277     Count coming in to IF
+    56              1                        228                             next_state = (slv_inter.i_ready) ? READ : IDLE;
+    56              2                         49                             next_state = (slv_inter.i_ready) ? READ : IDLE;
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    75                                       747     Count coming in to IF
+    75              1                        127                     if (slv_inter.i_rd_valid && slv_inter.i_penable) begin // If read data is valid and enabled
+    78              1                        620                     end else begin
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    90                                       725     Count coming in to IF
+    90              1                        145                     if (slv_inter.i_penable) begin // Transaction enabled
+    93              1                        580                     end else begin
+Branch totals: 2 hits of 2 branches = 100.00%
+
+
+Condition Coverage:
+    Enabled Coverage              Bins   Covered    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Conditions                       2         2         0   100.00%
+
+================================Condition Details================================
+
+Condition Coverage for instance /\apb_top#dut2  --
+
+  File apb_slave.sv
+----------------Focused Condition View-------------------
+Line       75 Item    1  (slv_inter.i_rd_valid && slv_inter.i_penable)
+Condition totals: 2 of 2 input terms covered = 100.00%
+
+            Input Term   Covered  Reason for no coverage   Hint
+           -----------  --------  -----------------------  --------------
+  slv_inter.i_rd_valid         Y
+   slv_inter.i_penable         Y
+
+     Rows:       Hits  FEC Target              Non-masking condition(s)      
+ ---------  ---------  --------------------    -------------------------     
+  Row   1:          1  slv_inter.i_rd_valid_0  -                             
+  Row   2:          1  slv_inter.i_rd_valid_1  slv_inter.i_penable           
+  Row   3:          1  slv_inter.i_penable_0   slv_inter.i_rd_valid          
+  Row   4:          1  slv_inter.i_penable_1   slv_inter.i_rd_valid          
+
+
+
+Directive Coverage:
+    Directives                       6         6         0   100.00%
+
+DIRECTIVE COVERAGE:
+--------------------------------------------------------------------------------------------
+Name                                     Design Design   Lang File(Line)      Hits Status    
+                                         Unit   UnitType                                     
+--------------------------------------------------------------------------------------------
+/\apb_top#dut2 /cover__valid_assertion_in_idle 
+                                         apb_slave Verilog  SVA  apb_slave.sv(162)
+                                                                               410 Covered   
+/\apb_top#dut2 /cover__pready_assertion  apb_slave Verilog  SVA  apb_slave.sv(161)
+                                                                               184 Covered   
+/\apb_top#dut2 /cover__read_state_data_control 
+                                         apb_slave Verilog  SVA  apb_slave.sv(160)
+                                                                               451 Covered   
+/\apb_top#dut2 /cover__write_state_data_control 
+                                         apb_slave Verilog  SVA  apb_slave.sv(159)
+                                                                                94 Covered   
+/\apb_top#dut2 /cover__valid_transition_from_idle 
+                                         apb_slave Verilog  SVA  apb_slave.sv(158)
+                                                                               338 Covered   
+/\apb_top#dut2 /cover__reset_behavior    apb_slave Verilog  SVA  apb_slave.sv(157)
+                                                                               181 Covered   
+FSM Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    FSM States                       3         3         0   100.00%
+    FSM Transitions                  4         4         0   100.00%
+
+================================FSM Details================================
+
+FSM Coverage for instance /\apb_top#dut2  --
+
+FSM_ID: state
+    Current State Object : state
+    ----------------------
+    State Value MapInfo :
+    ---------------------
+Line          State Name               Value
+----          ----------               -----
+  43                IDLE                   0
+  69                READ                   1
+  84               WRITE                   2
+    Covered States :
+    ----------------
+                   State           Hit_count
+                   -----           ---------
+                    IDLE                 680          
+                    READ                 235          
+                   WRITE                 245          
+    Covered Transitions :
+    ---------------------
+Line            Trans_ID           Hit_count          Transition          
+----            --------           ---------          ----------          
+  56                   0                 135          IDLE -> READ                  
+  52                   1                 139          IDLE -> WRITE                 
+  77                   2                 134          READ -> IDLE                  
+  92                   3                 139          WRITE -> IDLE                 
+
+
+    Summary                       Bins      Hits    Misses  Coverage
+    -------                       ----      ----    ------  --------
+        FSM States                   3         3         0   100.00%
+        FSM Transitions              4         4         0   100.00%
+Statement Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Statements                      37        37         0   100.00%
+
+================================Statement Details================================
+
+Statement Coverage for instance /\apb_top#dut2  --
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File apb_slave.sv
+    16                                               module apb_slave (slave_arb_if.DUT slv_inter);
+    17                                                  
+    18                                               	// FSM states
+    19                                                   typedef enum logic [1:0] {
+    20                                                       IDLE   = 2'b00, // Idle state
+    21                                                       READ  = 2'b01,  // read state
+    22                                                       WRITE = 2'b10   // write state 
+    23                                                   } state_t;
+    24                                               
+    25                                                   state_t state, next_state;
+    26                                               	
+    27                                                   // Default outputs
+    28                                                   assign slv_inter.o_pslverr = 1'b0;        // Always OKAY, no error
+    29                                                   // assign slv_inter.o_pready  = (state == IDLE) ? 1'b0 : 1'b1;
+    30              1                       2001         assign slv_inter.o_prdata  = (slv_inter.i_rd_valid) ? slv_inter.i_rd_data : 32'b0;
+    31                                               
+    32                                                   // State Machine
+    33              1                       1234         always @(posedge slv_inter.i_clk_apb or negedge slv_inter.i_rstn_apb) begin
+    34                                                       if (!slv_inter.i_rstn_apb)
+    35              1                        320                 state <= IDLE;
+    36                                                       else
+    37              1                        914                 state <= next_state;
+    38                                                   end
+    39                                               
+    40              1                       2586         always @(*) begin
+    41                                               
+    42                                                       case (state)
+    43                                                           IDLE: begin
+    44                                                               if (slv_inter.i_psel) begin // If peripheral is selected
+    45              1                        555                         slv_inter.o_pready = 1'b0;
+    46              1                        555                         slv_inter.o_addr = slv_inter.i_paddr;         // Capture address
+    47              1                        555                         slv_inter.o_rd0_wr1 = slv_inter.i_pwrite;
+    48                                               
+    49                                                                   if (slv_inter.i_pwrite) begin  // Write transaction
+    50              1                        278                             slv_inter.o_wr_data = slv_inter.i_pwdata;
+    51              1                        278                             slv_inter.o_valid = 1'b1;       // Indicate valid transaction
+    52              1                        278                             next_state = (slv_inter.i_ready) ? WRITE : IDLE;
+    53                                                                   end else begin // Read transaction
+    54              1                        277                             slv_inter.o_wr_data = slv_inter.i_pwdata; // Don't care in read
+    55              1                        277                             slv_inter.o_valid = 1'b1;       // Indicate valid transaction
+    56              1                        277                             next_state = (slv_inter.i_ready) ? READ : IDLE;
+    57                                                                   end
+    58                                                               end else begin // If peripheral is not selected
+    59                                                                   // Ready without valid transaction
+    60              1                        558                         slv_inter.o_pready = 1'b1; 
+    61              1                        558                         slv_inter.o_valid = 1'b0;
+    62              1                        558                         slv_inter.o_addr = slv_inter.i_paddr;
+    63              1                        558                         slv_inter.o_rd0_wr1 = slv_inter.i_pwrite;
+    64              1                        558                         slv_inter.o_wr_data = slv_inter.i_pwdata;
+    65              1                        558                         next_state = IDLE ;       // Return to idle state
+    66                                                               end
+    67                                                           end
+    68                                               
+    69                                                           READ: begin
+    70              1                        747                     slv_inter.o_addr = slv_inter.i_paddr;
+    71              1                        747                     slv_inter.o_rd0_wr1 = slv_inter.i_pwrite;
+    72              1                        747                     slv_inter.o_wr_data = slv_inter.i_pwdata;  // Write data not used in read (Don't care)
+    73              1                        747                     slv_inter.o_valid = 1'b1;        // valid transaction
+    74                                                               
+    75                                                               if (slv_inter.i_rd_valid && slv_inter.i_penable) begin // If read data is valid and enabled
+    76              1                        127                         slv_inter.o_pready = 1'b1;   // Transaction completed
+    77              1                        127                         next_state = IDLE; // Return to idle state
+    78                                                               end else begin
+    79              1                        620                         slv_inter.o_pready = 1'b0;   // Transaction not yet complete
+    80              1                        620                         next_state = READ; // Return to read state (wait state)
+    81                                                               end
+    82                                                           end
+    83                                               
+    84                                                           WRITE: begin
+    85              1                        725                     slv_inter.o_addr = slv_inter.i_paddr;
+    86              1                        725                     slv_inter.o_rd0_wr1 = slv_inter.i_pwrite;
+    87              1                        725                     slv_inter.o_wr_data = slv_inter.i_pwdata;
+    88              1                        725                     slv_inter.o_valid = 1'b1;         // valid transaction
+    89                                               
+    90                                                               if (slv_inter.i_penable) begin // Transaction enabled
+    91              1                        145                         slv_inter.o_pready = 1'b1;    // Transaction completed
+    92              1                        145                         next_state = IDLE;  // Return to idle state
+    93                                                               end else begin
+    94              1                        580                         slv_inter.o_pready = 1'b0;    // Transaction not yet complete
+    95              1                        580                         next_state = WRITE; // Return to write state (wait state)
+    96                                                               end
+    97                                                           end
+    98                                                           
+    99              1                          1                 default: next_state = IDLE; // Default to IDLE state
+
+Toggle Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                          6         6         0   100.00%
+
+================================Toggle Details================================
+
+Toggle Coverage for instance /\apb_top#dut2  --
+
+                                              Node      1H->0L      0L->1H                          "Coverage"
+                                              ---------------------------------------------------------------
+                                        next_state               ENUM type       Value       Count 
+                                                                      IDLE         181      100.00 
+                                                                      READ           1      100.00 
+                                                                     WRITE         166      100.00 
+                                             state               ENUM type       Value       Count 
+                                                                      IDLE         140      100.00 
+                                                                      READ           1      100.00 
+                                                                     WRITE         146      100.00 
+
+Total Node Count     =          6 
+Toggled Node Count   =          6 
+Untoggled Node Count =          0 
+
+Toggle Coverage      =     100.00% (6 of 6 bins)
+
+
+DIRECTIVE COVERAGE:
+--------------------------------------------------------------------------------------------
+Name                                     Design Design   Lang File(Line)      Hits Status    
+                                         Unit   UnitType                                     
+--------------------------------------------------------------------------------------------
+/\apb_top#dut2 /cover__valid_assertion_in_idle 
+                                         apb_slave Verilog  SVA  apb_slave.sv(162)
+                                                                               410 Covered   
+/\apb_top#dut2 /cover__pready_assertion  apb_slave Verilog  SVA  apb_slave.sv(161)
+                                                                               184 Covered   
+/\apb_top#dut2 /cover__read_state_data_control 
+                                         apb_slave Verilog  SVA  apb_slave.sv(160)
+                                                                               451 Covered   
+/\apb_top#dut2 /cover__write_state_data_control 
+                                         apb_slave Verilog  SVA  apb_slave.sv(159)
+                                                                                94 Covered   
+/\apb_top#dut2 /cover__valid_transition_from_idle 
+                                         apb_slave Verilog  SVA  apb_slave.sv(158)
+                                                                               338 Covered   
+/\apb_top#dut2 /cover__reset_behavior    apb_slave Verilog  SVA  apb_slave.sv(157)
+                                                                               181 Covered   
+
+TOTAL DIRECTIVE COVERAGE: 100.00%  COVERS: 6
+
+ASSERTION RESULTS:
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/\apb_top#dut2 /assert__valid_assertion_in_idle
+                     apb_slave.sv(153)                  0          1
+/\apb_top#dut2 /assert__pready_assertion
+                     apb_slave.sv(144)                  0          1
+/\apb_top#dut2 /assert__read_state_data_control
+                     apb_slave.sv(136)                  0          1
+/\apb_top#dut2 /assert__write_state_data_control
+                     apb_slave.sv(127)                  1          1
+/\apb_top#dut2 /assert__valid_transition_from_idle
+                     apb_slave.sv(118)                  0          1
+/\apb_top#dut2 /assert__reset_behavior
+                     apb_slave.sv(110)                  0          1
+
+Total Coverage By Instance (filtered view): 97.91%
+

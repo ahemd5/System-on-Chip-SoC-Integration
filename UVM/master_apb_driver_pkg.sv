@@ -38,7 +38,7 @@ class master_apb_driver extends uvm_driver #(master_apb_seq_item);
 		 mast_apb_vif.i_pready = mast_stim_seq_item.i_pready;
 		 mast_apb_vif.i_prdata = mast_stim_seq_item.i_prdata;
 
-         @(negedge mast_apb_vif.i_clk_apb);
+         @(posedge mast_apb_vif.i_clk_apb);
          seq_item_port.item_done();
          `uvm_info("Driver", mast_stim_seq_item.convert2string_stimulus(), UVM_HIGH);
       end

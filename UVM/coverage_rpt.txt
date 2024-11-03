@@ -1,0 +1,466 @@
+Coverage Report by instance with details
+
+=================================================================================
+=== Instance: /\apb_top#dut1 
+=== Design Unit: work.apb_master
+=================================================================================
+
+Assertion Coverage:
+    Assertions                      17        17         0   100.00%
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/\apb_top#dut1 /assert__psel_stable_in_transfer
+                     apb_master.sv(244)                 0          1
+/\apb_top#dut1 /assert__penable_in_transfer
+                     apb_master.sv(239)                 0          1
+/\apb_top#dut1 /assert__pwdata_in_wr_transfer
+                     apb_master.sv(234)                 0          1
+/\apb_top#dut1 /assert__access_last_state
+                     apb_master.sv(229)                 0          1
+/\apb_top#dut1 /assert__access_wait_state
+                     apb_master.sv(224)                 0          1
+/\apb_top#dut1 /assert__setup_state
+                     apb_master.sv(219)                 0          1
+/\apb_top#dut1 /assert__idle_state
+                     apb_master.sv(214)                 0          1
+/\apb_top#dut1 /assert__p10
+                     apb_master.sv(209)                 0          1
+/\apb_top#dut1 /assert__p9
+                     apb_master.sv(203)                 0          1
+/\apb_top#dut1 /assert__p8
+                     apb_master.sv(194)                 0          1
+/\apb_top#dut1 /assert__p7
+                     apb_master.sv(188)                 0          1
+/\apb_top#dut1 /assert__p6
+                     apb_master.sv(182)                 0          1
+/\apb_top#dut1 /assert__p5
+                     apb_master.sv(176)                 0          1
+/\apb_top#dut1 /assert__p4
+                     apb_master.sv(170)                 0          1
+/\apb_top#dut1 /assert__p3
+                     apb_master.sv(165)                 0          1
+/\apb_top#dut1 /assert__p2
+                     apb_master.sv(159)                 0          1
+/\apb_top#dut1 /assert__p1
+                     apb_master.sv(153)                 0          1
+Branch Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                        19        19         0   100.00%
+
+================================Branch Details================================
+
+Branch Coverage for instance /\apb_top#dut1 
+NOTE: The modification timestamp for source file 'apb_master.sv' has been altered since compilation.
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File apb_master.sv
+------------------------------------IF Branch------------------------------------
+    31                                      1944     Count coming in to IF
+    31              1                         20             if (!mast_inter.i_rstn_apb) begin
+    34              1                       1924             else begin
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    40                                      2010     Count coming in to IF
+    40              1                         20             if (!mast_inter.i_rstn_apb) begin
+    44              1                        939             end else if (mast_inter.o_ready && mast_inter.i_valid) begin
+                                            1051     All False Count
+Branch totals: 3 hits of 3 branches = 100.00%
+
+------------------------------------CASE Branch------------------------------------
+    54                                      2143     Count coming in to CASE
+    55              1                         36                 IDLE: begin
+    74              1                       1002                 SETUP: begin
+    91              1                       1104                 ACCESS: begin
+    125             1                          1                     end
+Branch totals: 4 hits of 4 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    66                                        36     Count coming in to IF
+    66              1                         27                     if (mast_inter.i_valid) begin
+    69              1                          9                     else begin
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    82                                      1002     Count coming in to IF
+    82              1                         66                     if (i_rd0_wr1_reg == 1'b1) begin
+    84              1                        936                     end else begin
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    98                                      1104     Count coming in to IF
+    98              1                        960                     if (mast_inter.i_pready) begin        // Wait for slave to be ready
+    117             1                        144                             next_state = IDLE;      // Return to IDLE after transaction completes
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    99                                       960     Count coming in to IF
+    99              1                        910                         if (i_rd0_wr1_reg == 1'b0) begin
+    103             1                         50                         end else begin
+Branch totals: 2 hits of 2 branches = 100.00%
+
+------------------------------------IF Branch------------------------------------
+    108                                      960     Count coming in to IF
+    108             1                        952     
+    112             1                          8                                      
+Branch totals: 2 hits of 2 branches = 100.00%
+
+
+Condition Coverage:
+    Enabled Coverage              Bins   Covered    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Conditions                       2         2         0   100.00%
+
+================================Condition Details================================
+
+Condition Coverage for instance /\apb_top#dut1  --
+NOTE: The modification timestamp for source file 'apb_master.sv' has been altered since compilation.
+
+  File apb_master.sv
+----------------Focused Condition View-------------------
+Line       44 Item    1  (mast_inter.o_ready && mast_inter.i_valid)
+Condition totals: 2 of 2 input terms covered = 100.00%
+
+          Input Term   Covered  Reason for no coverage   Hint
+         -----------  --------  -----------------------  --------------
+  mast_inter.o_ready         Y
+  mast_inter.i_valid         Y
+
+     Rows:       Hits  FEC Target            Non-masking condition(s)      
+ ---------  ---------  --------------------  -------------------------     
+  Row   1:          1  mast_inter.o_ready_0  -                             
+  Row   2:          1  mast_inter.o_ready_1  mast_inter.i_valid            
+  Row   3:          1  mast_inter.i_valid_0  mast_inter.o_ready            
+  Row   4:          1  mast_inter.i_valid_1  mast_inter.o_ready            
+
+
+
+Directive Coverage:
+    Directives                      16        16         0   100.00%
+
+DIRECTIVE COVERAGE:
+--------------------------------------------------------------------------------------------
+Name                                     Design Design   Lang File(Line)      Hits Status    
+                                         Unit   UnitType                                     
+--------------------------------------------------------------------------------------------
+/\apb_top#dut1 /cover__psel_stable_in_transfer 
+                                         apb_master Verilog  SVA  apb_master.sv(263)
+                                                                                 7 Covered   
+/\apb_top#dut1 /cover__penable_in_transfer 
+                                         apb_master Verilog  SVA  apb_master.sv(262)
+                                                                               928 Covered   
+/\apb_top#dut1 /cover__pwdata_in_wr_transfer 
+                                         apb_master Verilog  SVA  apb_master.sv(261)
+                                                                                67 Covered   
+/\apb_top#dut1 /cover__access_wait_state apb_master Verilog  SVA  apb_master.sv(260)
+                                                                                99 Covered   
+/\apb_top#dut1 /cover__setup_state       apb_master Verilog  SVA  apb_master.sv(259)
+                                                                               930 Covered   
+/\apb_top#dut1 /cover__idle_state        apb_master Verilog  SVA  apb_master.sv(258)
+                                                                                26 Covered   
+/\apb_top#dut1 /cover__p10               apb_master Verilog  SVA  apb_master.sv(256)
+                                                                                27 Covered   
+/\apb_top#dut1 /cover__p9                apb_master Verilog  SVA  apb_master.sv(255)
+                                                                                24 Covered   
+/\apb_top#dut1 /cover__p8                apb_master Verilog  SVA  apb_master.sv(254)
+                                                                              1029 Covered   
+/\apb_top#dut1 /cover__p7                apb_master Verilog  SVA  apb_master.sv(253)
+                                                                               898 Covered   
+/\apb_top#dut1 /cover__p6                apb_master Verilog  SVA  apb_master.sv(252)
+                                                                               897 Covered   
+/\apb_top#dut1 /cover__p5                apb_master Verilog  SVA  apb_master.sv(251)
+                                                                                27 Covered   
+/\apb_top#dut1 /cover__p4                apb_master Verilog  SVA  apb_master.sv(250)
+                                                                               920 Covered   
+/\apb_top#dut1 /cover__p3                apb_master Verilog  SVA  apb_master.sv(249)
+                                                                                 7 Covered   
+/\apb_top#dut1 /cover__p2                apb_master Verilog  SVA  apb_master.sv(248)
+                                                                               932 Covered   
+/\apb_top#dut1 /cover__p1                apb_master Verilog  SVA  apb_master.sv(247)
+                                                                                27 Covered   
+FSM Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    FSM States                       3         3         0   100.00%
+    FSM Transitions                  5         5         0   100.00%
+
+================================FSM Details================================
+
+FSM Coverage for instance /\apb_top#dut1  --
+
+FSM_ID: state
+    Current State Object : state
+    ----------------------
+    State Value MapInfo :
+    ---------------------
+Line          State Name               Value
+----          ----------               -----
+  55                IDLE                   0
+  74               SETUP                   1
+  91              ACCESS                   2
+    Covered States :
+    ----------------
+                   State           Hit_count
+                   -----           ---------
+                    IDLE                  28          
+                   SETUP                 938          
+                  ACCESS                 970          
+    Covered Transitions :
+    ---------------------
+Line            Trans_ID           Hit_count          Transition          
+----            --------           ---------          ----------          
+  67                   0                  17          IDLE -> SETUP                 
+  88                   1                 932          SETUP -> ACCESS               
+  32                   2                   5          SETUP -> IDLE                 
+ 114                   3                  11          ACCESS -> IDLE                
+ 110                   4                 921          ACCESS -> SETUP               
+
+
+    Summary                       Bins      Hits    Misses  Coverage
+    -------                       ----      ----    ------  --------
+        FSM States                   3         3         0   100.00%
+        FSM Transitions              5         5         0   100.00%
+Statement Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Statements                      51        51         0   100.00%
+
+================================Statement Details================================
+
+Statement Coverage for instance /\apb_top#dut1  --
+NOTE: The modification timestamp for source file 'apb_master.sv' has been altered since compilation.
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File apb_master.sv
+    16                                               module apb_master(master_arb_if.DUT mast_inter);
+    17                                               
+    18                                               logic i_rd0_wr1_reg; //it is only 1 bit thats error
+    19                                               logic [31:0] i_addr_reg , i_wr_data_reg;
+    20                                                   // FSM states
+    21                                                   typedef enum logic [1:0] {
+    22                                                       IDLE   = 2'b00,  // Idle state
+    23                                                       SETUP  = 2'b01,  // Setup state
+    24                                                       ACCESS = 2'b10   // Access state (read/write operation)
+    25                                                   } state_t;
+    26                                               
+    27                                                   state_t state, next_state;
+    28                                               
+    29                                                   // State transition logic (Sequential block)
+    30              1                       1944         always @(posedge mast_inter.i_clk_apb or negedge mast_inter.i_rstn_apb) begin
+    31                                                       if (!mast_inter.i_rstn_apb) begin
+    32              1                         20                 state <= IDLE;  // Reset state is IDLE
+    33                                                       end 
+    34                                                       else begin
+    35              1                       1924                 state <= next_state;  // Move to the next state on each clock cycle
+    36                                                       end
+    37                                                   end
+    38                                                   
+    39              1                       2010         always @(posedge mast_inter.i_clk_apb or negedge mast_inter.i_rstn_apb) begin
+    40                                                       if (!mast_inter.i_rstn_apb) begin
+    41              1                         20                 i_rd0_wr1_reg <= 'b0;
+    42              1                         20                 i_addr_reg <= 'b0;
+    43              1                         20                 i_wr_data_reg <= 'b0;
+    44                                                       end else if (mast_inter.o_ready && mast_inter.i_valid) begin
+    45              1                        939                 i_rd0_wr1_reg <= mast_inter.i_rd0_wr1;
+    46              1                        939                 i_addr_reg <= mast_inter.i_addr;
+    47              1                        939                 i_wr_data_reg <= mast_inter.i_wr_data;
+    48                                                       end
+    49                                                   end
+    50                                               
+    51                                                   // Combinational logic block for FSM and output logic
+    52              1                       2143         always @(*) begin
+    53                                                   
+    54                                                       case (state)
+    55                                                           IDLE: begin
+    56                                                               // Default values for all outputs
+    57              1                         36                     mast_inter.o_psel = 1'b0;
+    58              1                         36                     mast_inter.o_penable = 1'b0;
+    59              1                         36                     mast_inter.o_pwrite = 1'b0;
+    60              1                         36                     mast_inter.o_rd_valid = 1'b0;
+    61              1                         36                     mast_inter.o_rd_data = 32'b0;
+    62              1                         36                     mast_inter.o_paddr = 32'b0;
+    63              1                         36                     mast_inter.o_pwdata = 32'b0;
+    64              1                         36                     mast_inter.o_ready = 1'b1;  // Master is ready by default
+    65                                                               // In IDLE, wait for valid transaction
+    66                                                               if (mast_inter.i_valid) begin
+    67              1                         27                         next_state = SETUP;  // Move to SETUP when transaction is valid
+    68                                                               end
+    69                                                               else begin
+    70              1                          9                         next_state = IDLE;  // Stay in IDLE if no valid transaction
+    71                                                               end
+    72                                                           end
+    73                                               
+    74                                                           SETUP: begin
+    75                                                               // In SETUP, configure APB signals for read/write operation
+    76              1                       1002                     mast_inter.o_penable = 1'b0;
+    77              1                       1002                     mast_inter.o_rd_valid = 1'b0;
+    78              1                       1002                     mast_inter.o_rd_data = 32'b0;
+    79              1                       1002                     mast_inter.o_psel = 1'b1;                  // Select the peripheral
+    80              1                       1002                     mast_inter.o_pwrite = i_rd0_wr1_reg;       // Set write/read based on control signal
+    81              1                       1002                     mast_inter.o_paddr =i_addr_reg;           // Set address for transaction
+    82                                                               if (i_rd0_wr1_reg == 1'b1) begin
+    83              1                         66                         mast_inter.o_pwdata =i_wr_data_reg;   // Set write data if it's a write operation
+    84                                                               end else begin
+    85              1                        936                         mast_inter.o_pwdata = 'b0 ;
+    86                                                               end 
+    87              1                       1002                     mast_inter.o_ready = 1'b0;           // Master is busy now
+    88              1                       1002                     next_state = ACCESS;      // Move to ACCESS phase
+    89                                                           end
+    90                                               
+    91                                                           ACCESS: begin
+    92                                                               // In ACCESS, enable peripheral and check for completion
+    93              1                       1104                     mast_inter.o_penable = 1'b1;          // Enable the peripheral for data transfer
+    94              1                       1104                     mast_inter.o_ready = 1'b0;            // Master is still busy
+    95              1                       1104                     mast_inter.o_psel = 1'b1;             // Select the peripheral
+    96              1                       1104                     mast_inter.o_pwrite = i_rd0_wr1_reg;  // Set write/read based on control signal
+    97              1                       1104                     mast_inter.o_paddr = i_addr_reg;      // Set address for transaction
+    98                                                               if (mast_inter.i_pready) begin        // Wait for slave to be ready
+    99                                                                   if (i_rd0_wr1_reg == 1'b0) begin
+    100             1                        910                             mast_inter.o_rd_data = mast_inter.i_prdata;   // Capture read data from slave
+    101             1                        910                             mast_inter.o_pwdata = 'b0 ;
+    102             1                        910                             mast_inter.o_rd_valid = 1'b1;      // Indicate valid read data
+    103                                                                  end else begin
+    104             1                         50                             mast_inter.o_rd_data = 'b0 ;
+    105             1                         50                             mast_inter.o_pwdata =i_wr_data_reg;   // Set write data if it's a write operation
+    106             1                         50                             mast_inter.o_rd_valid = 1'b0;      
+    107                                                                  end
+    108                                              
+    109             1                        952                         mast_inter.o_ready = 1'b1;         // Master is ready for next transaction
+    110             1                        952     
+    111                                                                  if (mast_inter.i_valid) begin
+    112                                                                               
+    113             1                          8                             next_state = SETUP;     // Move to SETUP if a new valid transaction is present 
+    114             1                          8                         end
+    115                                                                  else begin
+    116                                                                      
+    117                                                                      next_state = IDLE;      // Return to IDLE after transaction completes
+    118             1                        144                         end
+    119             1                        144                     end
+    120             1                        144                     else begin
+    121             1                        144                         mast_inter.o_rd_data = 'b0;   // Capture read data from slave
+    122                                                                  mast_inter.o_pwdata = i_wr_data_reg ;
+    123                                                                  mast_inter.o_rd_valid = 1'b0;      // Indicate valid read data
+    124                                                                  next_state = ACCESS;        // Stay in ACCESS if slave is not ready yet
+    125                                                              end
+    126             1                          1                 end
+
+Toggle Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                        136       136         0   100.00%
+
+================================Toggle Details================================
+
+Toggle Coverage for instance /\apb_top#dut1  --
+
+                                              Node      1H->0L      0L->1H                          "Coverage"
+                                              ---------------------------------------------------------------
+                                  i_addr_reg[31-0]           1           1                              100.00 
+                                     i_rd0_wr1_reg           1           1                              100.00 
+                               i_wr_data_reg[31-0]           1           1                              100.00 
+                                        next_state               ENUM type       Value       Count 
+                                                                      IDLE           1      100.00 
+                                                                     SETUP           1      100.00 
+                                                                    ACCESS           1      100.00 
+                                             state               ENUM type       Value       Count 
+                                                                      IDLE           1      100.00 
+                                                                     SETUP           1      100.00 
+                                                                    ACCESS           1      100.00 
+
+Total Node Count     =         71 
+Toggled Node Count   =         71 
+Untoggled Node Count =          0 
+
+Toggle Coverage      =     100.00% (136 of 136 bins)
+
+
+DIRECTIVE COVERAGE:
+--------------------------------------------------------------------------------------------
+Name                                     Design Design   Lang File(Line)      Hits Status    
+                                         Unit   UnitType                                     
+--------------------------------------------------------------------------------------------
+/\apb_top#dut1 /cover__psel_stable_in_transfer 
+                                         apb_master Verilog  SVA  apb_master.sv(263)
+                                                                                 7 Covered   
+/\apb_top#dut1 /cover__penable_in_transfer 
+                                         apb_master Verilog  SVA  apb_master.sv(262)
+                                                                               928 Covered   
+/\apb_top#dut1 /cover__pwdata_in_wr_transfer 
+                                         apb_master Verilog  SVA  apb_master.sv(261)
+                                                                                67 Covered   
+/\apb_top#dut1 /cover__access_wait_state apb_master Verilog  SVA  apb_master.sv(260)
+                                                                                99 Covered   
+/\apb_top#dut1 /cover__setup_state       apb_master Verilog  SVA  apb_master.sv(259)
+                                                                               930 Covered   
+/\apb_top#dut1 /cover__idle_state        apb_master Verilog  SVA  apb_master.sv(258)
+                                                                                26 Covered   
+/\apb_top#dut1 /cover__p10               apb_master Verilog  SVA  apb_master.sv(256)
+                                                                                27 Covered   
+/\apb_top#dut1 /cover__p9                apb_master Verilog  SVA  apb_master.sv(255)
+                                                                                24 Covered   
+/\apb_top#dut1 /cover__p8                apb_master Verilog  SVA  apb_master.sv(254)
+                                                                              1029 Covered   
+/\apb_top#dut1 /cover__p7                apb_master Verilog  SVA  apb_master.sv(253)
+                                                                               898 Covered   
+/\apb_top#dut1 /cover__p6                apb_master Verilog  SVA  apb_master.sv(252)
+                                                                               897 Covered   
+/\apb_top#dut1 /cover__p5                apb_master Verilog  SVA  apb_master.sv(251)
+                                                                                27 Covered   
+/\apb_top#dut1 /cover__p4                apb_master Verilog  SVA  apb_master.sv(250)
+                                                                               920 Covered   
+/\apb_top#dut1 /cover__p3                apb_master Verilog  SVA  apb_master.sv(249)
+                                                                                 7 Covered   
+/\apb_top#dut1 /cover__p2                apb_master Verilog  SVA  apb_master.sv(248)
+                                                                               932 Covered   
+/\apb_top#dut1 /cover__p1                apb_master Verilog  SVA  apb_master.sv(247)
+                                                                                27 Covered   
+
+TOTAL DIRECTIVE COVERAGE: 100.00%  COVERS: 16
+
+ASSERTION RESULTS:
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/\apb_top#dut1 /assert__psel_stable_in_transfer
+                     apb_master.sv(244)                 0          1
+/\apb_top#dut1 /assert__penable_in_transfer
+                     apb_master.sv(239)                 0          1
+/\apb_top#dut1 /assert__pwdata_in_wr_transfer
+                     apb_master.sv(234)                 0          1
+/\apb_top#dut1 /assert__access_last_state
+                     apb_master.sv(229)                 0          1
+/\apb_top#dut1 /assert__access_wait_state
+                     apb_master.sv(224)                 0          1
+/\apb_top#dut1 /assert__setup_state
+                     apb_master.sv(219)                 0          1
+/\apb_top#dut1 /assert__idle_state
+                     apb_master.sv(214)                 0          1
+/\apb_top#dut1 /assert__p10
+                     apb_master.sv(209)                 0          1
+/\apb_top#dut1 /assert__p9
+                     apb_master.sv(203)                 0          1
+/\apb_top#dut1 /assert__p8
+                     apb_master.sv(194)                 0          1
+/\apb_top#dut1 /assert__p7
+                     apb_master.sv(188)                 0          1
+/\apb_top#dut1 /assert__p6
+                     apb_master.sv(182)                 0          1
+/\apb_top#dut1 /assert__p5
+                     apb_master.sv(176)                 0          1
+/\apb_top#dut1 /assert__p4
+                     apb_master.sv(170)                 0          1
+/\apb_top#dut1 /assert__p3
+                     apb_master.sv(165)                 0          1
+/\apb_top#dut1 /assert__p2
+                     apb_master.sv(159)                 0          1
+/\apb_top#dut1 /assert__p1
+                     apb_master.sv(153)                 0          1
+
+Total Coverage By Instance (filtered view): 100.00%
+

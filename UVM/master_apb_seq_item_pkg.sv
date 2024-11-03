@@ -20,11 +20,15 @@ bit [DATA_WIDTH-1:0] o_pwdata;
 bit [ADDR_WIDTH-1:0] o_paddr;
 bit o_psel, o_penable, o_pwrite;
 rand bit [DATA_WIDTH-1:0] i_prdata;
-rand bit i_pslverr, i_pready;
+rand bit i_pslverr,i_pready;
+// Transaction type to determine read or write
+    typedef enum {READ, WRITE} transaction_e;
+    transaction_e transaction_type; // Add this line
 
 
 function new(string name ="master_apb_seq_item");
 super.new(name);
+transaction_type=READ;
 endfunction
 
 
@@ -39,13 +43,34 @@ endfunction
 
 ////////////////////////////////
 
-constraint trans {
-i_rstn_apb dist {0:=5 , 1:=95};
-i_valid dist {0:=10, 1:=90};
-i_rd0_wr1 dist {0:=30 , 1:=70};
-i_pslverr dist {0:=10 , 1:=90};
-i_pready dist {0:=30 , 1:=70};
-}
+
+        ////////////////////////////////
+// Constraints for valid and reset signal distributions
+    constraint common_c {
+        i_rstn_apb dist {0 := 5, 1 := 95};
+        i_valid dist {0 := 10, 1 := 90};
+    }
+
+    // Separate constraints for read and write transactions
+    constraint read_c {
+        i_rd0_wr1 == 1'b0;
+       i_pready dist {0 := 60, 1 := 40};    // Higher likelihood that pready is 1
+        i_pslverr dist {0 := 10, 1 := 90};   // Error signal distribution
+    }
+
+    constraint write_c {
+        i_rd0_wr1 == 1'b1;
+        i_wr_data inside {[0 : (1<<DATA_WIDTH)-1]};  // Range constraint for data width
+        i_pready dist {0 := 60, 1 := 40};    // Different distribution for writes
+    }
+
+    // Address constraint common to both read and write
+    constraint addr_c {
+        i_addr inside {[0 : (1<<ADDR_WIDTH)-1]};
+    }
+
+  
+    
 endclass
 
 endpackage

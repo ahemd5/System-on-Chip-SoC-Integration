@@ -12,6 +12,7 @@ package apb_config_pkg;
     function new(string name = "apb_config");
       super.new(name);
     endfunction
+
   endclass
 endpackage
 

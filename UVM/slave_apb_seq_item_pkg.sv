@@ -39,14 +39,32 @@ endfunction
 
 ////////////////////////////////
 
-constraint trans {
-i_rstn_apb dist {0:=5 , 1:=95};
-i_rd_valid dist {0:=10, 1:=90};
-i_psel dist {0:=10 , 1:=90};
-i_penable dist {0:=10 , 1:=90};
-i_pwrite dist {0:=30 , 1:=70};
-i_ready dist {0:=30 , 1:=70};
-}
+constraint common_c {
+        i_rstn_apb dist {0 := 10, 1 := 90};
+        i_rd_valid dist {0 := 10, 1 := 90};
+    }
+
+    // Separate constraints for read and write transactions
+    constraint read_c {
+       i_pwrite == 1'b0;
+       i_ready dist {0 := 20, 1 := 80};    // Higher likelihood that pready is 1
+       
+    }
+
+    constraint write_c {
+        i_pwrite == 1'b1;
+        i_pwdata inside {[0 : (1<<DATA_WIDTH)-1]};  // Range constraint for data width
+        i_ready dist {0 := 20, 1 := 80};    // Different distribution for writes
+    }
+
+    // Address constraint common to both read and write
+    constraint addr_c {
+        i_paddr inside {[0 : (1<<ADDR_WIDTH)-1]};
+    }
+ constraint enable {
+        i_penable dist {0 := 80, 1 := 20}; 
+    }
+
 endclass
 
 endpackage

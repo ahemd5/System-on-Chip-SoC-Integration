@@ -35,7 +35,7 @@ bit o_rd_valid_ref, o_ready_ref;
 bit [31:0] o_pwdata_ref;
 bit [31:0] o_paddr_ref;
 bit o_psel_ref, o_penable_ref, o_pwrite_ref;
-
+bit [31:0] save;
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   int master_error_count = 0;
   int master_correct_count = 0;
@@ -117,12 +117,15 @@ bit o_psel_ref, o_penable_ref, o_pwrite_ref;
     end else begin
         // Write transaction: i_rd0_wr1 = 1
         if (mast_seq_item_chk.i_valid && mast_seq_item_chk.i_rd0_wr1) begin
+                      save=mast_seq_item_chk.i_wr_data;
             if (mast_seq_item_chk.o_ready) begin
-                o_pwdata_ref = mast_seq_item_chk.i_wr_data;
+                o_pwdata_ref = save;
                 o_paddr_ref = mast_seq_item_chk.i_addr;
                 o_pwrite_ref = mast_seq_item_chk.i_rd0_wr1;
                 o_psel_ref = 1;
                 o_penable_ref = 1;
+            end else begin
+                o_pwdata_ref = save;
             end
         end
         // Read transaction: i_rd0_wr1 = 0

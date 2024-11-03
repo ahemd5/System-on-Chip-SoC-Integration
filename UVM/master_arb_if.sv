@@ -16,6 +16,13 @@ logic o_psel, o_penable, o_pwrite;
 logic [DATA_WIDTH-1:0] i_prdata;
 logic i_pslverr, i_pready;
 
+typedef enum logic [1:0] {
+        IDLE   = 2'b00,
+        SETUP  = 2'b01,
+        ACCESS = 2'b10
+    } state_t;
+    
+    state_t state,next_state;  // Declare states as variables for use
 
 
   modport TEST (output i_valid, i_clk_apb, i_rstn_apb ,i_rd0_wr1, i_addr,i_wr_data,i_prdata,i_pready,i_pslverr,

@@ -37,7 +37,7 @@ class slave_apb_driver extends uvm_driver #(slave_apb_seq_item);
 		 slv_apb_vif.o_pready = slv_stim_seq_item.o_pready;
 		 slv_apb_vif.o_prdata = slv_stim_seq_item.o_prdata;
 
-         @(negedge slv_apb_vif.i_clk_apb);
+         @(posedge slv_apb_vif.i_clk_apb);
          seq_item_port.item_done();
          `uvm_info("Driver", slv_stim_seq_item.convert2string_stimulus(), UVM_HIGH);
       end
