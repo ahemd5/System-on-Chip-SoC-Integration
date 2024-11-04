@@ -1,3 +1,6 @@
+# Redirect output to a log file
+logfile simulation_log.txt;
+
 # Define variables for the top module name and simulation duration
 # Replace 'top_module_name' with the name of your top-level module.
 set TOP_MODULE tb_Sync_FIFO ;
@@ -54,5 +57,12 @@ if {$SIM_TIME == "all"} {
 # Write the waveform data to a .wlf file named after the top module
 write wave -file $TOP_MODULE.wlf;
 
+# Stop logging to the file and return output to the console
+logfile;
+
 # Step 8: Quit ModelSim after the simulation finishes
-quit;  # Exit ModelSim and clean up the simulation environment
+quit;  # Exit ModelSim and clean up the simulation environment.
+
+
+
+
