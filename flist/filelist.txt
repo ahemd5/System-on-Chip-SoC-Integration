@@ -1,1 +1,14 @@
-
+System-on-Chip-SoC-Integration/
+   flist/ 
+        filelist.txt
+   src/
+      ahb/
+      apb/
+      syn_fifo/
+      asyn_fifo/
+   uvm/
+      ahb/
+      apb/
+   sim/
+      ahb/
+      apb/
