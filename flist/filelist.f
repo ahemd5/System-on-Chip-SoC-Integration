@@ -1,7 +1,7 @@
 .
 ./flist
-./flist/filelist.txt
 ./flist/filelist.f
+./flist/readme.md
 ./run_simulation.do
 ./Project Abstract.pdf
 ./sim
