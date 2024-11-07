@@ -75,8 +75,8 @@ module ahb_master (
                 IDLE: begin
                     o_ready = 1'b1;  // Ready to accept a new transaction
                     if (i_valid) begin
-                        HADDR   = i_addr_reg;
-                        HWRITE  = i_rd0_wr1_reg;
+                        HADDR   = i_addr;
+                        HWRITE  = i_rd0_wr1;
                         HWDATA  = i_wr_data_reg;
                         HTRANS  = 2'b01;   // NONSEQ
                         o_ready = 1'b0;    // Busy after transaction initiation
@@ -92,8 +92,8 @@ module ahb_master (
                         o_rd_data = HRDATA;
                         o_rd_valid = 1'b1;
 						// New transaction accepted immediately after the previous one
-                        HADDR   = i_addr_reg;
-                        HWRITE  = i_rd0_wr1_reg;
+                        HADDR   = i_addr;
+                        HWRITE  = i_rd0_wr1;
                         HWDATA  = i_wr_data_reg;
                         HTRANS  = 2'b10;   // NONSEQ
                         o_ready = 1'b1;    
@@ -102,8 +102,8 @@ module ahb_master (
                         o_rd_valid = 1'b0;
 						o_ready = 1'b1; 
 						// New transaction accepted immediately after the previous one
-                        HADDR   = i_addr_reg;
-                        HWRITE  = i_rd0_wr1_reg;
+                        HADDR   = i_addr;
+                        HWRITE  = i_rd0_wr1;
                         HWDATA  = i_wr_data_reg;
                         HTRANS  = 2'b01;   // NONSEQ
                         o_ready = 1'b1;    
