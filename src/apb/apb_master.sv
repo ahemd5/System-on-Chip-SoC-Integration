@@ -158,6 +158,7 @@ endmodule
 
 // ***********************************************************************
 // Sign-off: The APB Master design is complete and ready for simulation 
-//           and integration into larger systems. It handles pipelined 
-//           transactions and supports both read and write operations.
+//           and integration into larger systems.The design
+//           ensures seamless interaction with slave devices, supporting
+//           robust and reliable read/write transactions.
 // ***********************************************************************
