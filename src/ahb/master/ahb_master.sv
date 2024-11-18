@@ -80,7 +80,6 @@ module ahb_master #(
                     o_haddr = i_addr;
                     o_hwrite = i_rd0_wr1;
                     o_htrans = 2'b1; // NONSEQ
-                    o_ready = 1'b0; // Indicate master is busy
                     o_rd_valid = 1'b0; // No valid read data yet
                     next_state = NONSEQ; // Transition to NONSEQ state
                 end else begin
