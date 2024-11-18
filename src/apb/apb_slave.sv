@@ -5,13 +5,13 @@
 //             The slave responds to APB transactions initiated by the master and handles data transfer
 //             based on the protocol's handshaking signals (`psel`, `penable`, `pwrite`).
 //             A finite state machine (FSM) governs the operation in different states: IDLE, READ, and WRITE. 
+// Parameters:
+//   - DATA_WIDTH: Width of the data bus (default 32 bits).
+//   - ADDR_WIDTH: Width of the address bus (default 32 bits).
 // Key Features:
 // - FSM for protocol-compliant state transitions.
 // - Read and write operations based on `pwrite` and `penable` signals.
 // - Handshaking signals for seamless communication with the master.
-// Parameters:
-//   - DATA_WIDTH: Width of the data bus (default 32 bits).
-//   - ADDR_WIDTH: Width of the address bus (default 32 bits).
 // ***********************************************************************
 
 module apb_slave #(
