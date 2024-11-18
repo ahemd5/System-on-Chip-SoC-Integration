@@ -147,7 +147,7 @@ module ahb_master #(
                     next_state = NONSEQ; // Stay in NONSEQ
                 end else begin
                     // Return to IDLE state when no valid transaction
-                    HTRANS = 1'b0; // Set transfer type to IDLE
+                    o_htrans  = 1'b0; // Set transfer type to IDLE
                     o_ready = 1'b1; // Ready for next transaction
                     next_state = IDLE; // Transition to IDLE
                 end
