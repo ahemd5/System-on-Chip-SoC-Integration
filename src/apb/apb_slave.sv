@@ -133,6 +133,7 @@ endmodule
 
 // ***********************************************************************
 // Sign-off: The APB Slave design is complete and ready for simulation 
-//           and integration into larger systems. It handles pipelined 
-//           transactions and supports both read and write operations.
+//           and integration into larger systems. It ensures proper handling 
+//           of APB transactions, supports both read and write operations, 
+//           and complies with the APB protocol's handshaking requirements.
 // ***********************************************************************
