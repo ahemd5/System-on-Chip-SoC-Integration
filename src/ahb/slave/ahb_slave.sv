@@ -95,12 +95,12 @@ module ahb_slave #(
                     o_wr_data   = 'b0;    // No write data during IDLE state
                     addr_buffer = i_haddr;  // Store address for future use
                     write_buffer = i_hwrite;  // Store the write flag (1 for write, 0 for read)
-                    o_rd0_wr1 = i_hwrite;  // Indicate whether the transaction is a read or write
+                    o_rd0_wr1 = i_hwrite;  // Indicate whether the transaction is a read or write                    
                     active_phase = 1'b1;  // Set active phase to indicate the start of the address phase
                     
                     if (i_hwrite) begin
                         o_valid = 1'b0;  // Write transaction is not valid yet
-                        o_addr  = 'b0;    // No valid address for write operation
+                        o_addr  = i_haddr;    //  Provide the write address to memory
                     end else begin
                         o_valid = 1'b1;  // Read transaction is valid
                         o_addr = i_haddr;  // Provide the read address to memory
