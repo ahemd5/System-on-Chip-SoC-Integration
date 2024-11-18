@@ -134,7 +134,6 @@ module ahb_slave #(
                 
                 // If a read operation is being performed
                 else if (!write_buffer && active_phase) begin
-                    o_hrdata = i_rd_data;  // Provide the read data from memory to the master
                     o_rd0_wr1 = write_buffer;  // Indicate a read transaction to memory
                     o_addr = addr_buffer;  // Provide the address to memory
                     o_valid = 1'b1;  // Mark read transaction as valid
@@ -144,8 +143,10 @@ module ahb_slave #(
                     addr_buffer = i_haddr;
                     
                     if (i_rd_valid) begin
+                        o_hrdata = i_rd_data;  // Provide the read data from memory to the master
                         o_hreadyout = 1'b1;  // If read data is valid, indicate readiness for the next transaction
                     end else begin
+                        o_hrdata = 'b0;  
                         o_hreadyout = 1'b0;  // Wait until the read data is valid
                     end
                     o_wr_data   = 'b0;    // No write data during read transaction
