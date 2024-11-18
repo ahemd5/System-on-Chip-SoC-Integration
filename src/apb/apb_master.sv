@@ -157,7 +157,7 @@ end
 endmodule
 
 // ***********************************************************************
-// Sign-off: The AHB Master design is complete and ready for simulation 
+// Sign-off: The APB Master design is complete and ready for simulation 
 //           and integration into larger systems. It handles pipelined 
 //           transactions and supports both read and write operations.
 // ***********************************************************************
