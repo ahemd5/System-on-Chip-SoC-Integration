@@ -40,9 +40,11 @@ module ahb_slave #(
     always @(posedge i_clk_ahb or negedge i_rstn_ahb) begin
         if (!i_rstn_ahb) begin
             current_state <= IDLE;
+	    write_buffer <= 1'b0;
+            addr_buffer <= 1'b0;
         end else begin
             current_state <= next_state;
-			write_buffer <= write_buffer_comb;
+	    write_buffer <= write_buffer_comb;
             addr_buffer <= addr_buffer_comb;
         end
     end
@@ -65,7 +67,7 @@ module ahb_slave #(
                     next_state = NONSEQ;
                 end else if (i_hselx && !i_hready && !i_ready && i_htrans) begin
                     next_state = NONSEQ;
-				end else if (i_hselx && !i_hready && i_ready && i_htrans) begin
+		end else if (i_hselx && !i_hready && i_ready && i_htrans) begin
                     next_state = NONSEQ;	
                 end else begin
                     next_state = IDLE;
@@ -79,17 +81,17 @@ module ahb_slave #(
         case (current_state)         
             IDLE: begin
                 if (i_hselx && i_htrans) begin									
-					o_hreadyout = 1'b1;
+		    o_hreadyout = 1'b1;
                     o_hrdata    = 'b0;
-					o_wr_data   = 'b0;
-					o_rd0_wr1   = i_hwrite;                    
+		    o_wr_data   = 'b0;
+		    o_rd0_wr1   = i_hwrite;                    
 					
                     addr_buffer_comb = i_haddr;
                     write_buffer_comb = i_hwrite;
                     
                     active_phase = 1'b1;				
 					
-					if (i_hwrite) begin
+		   if (i_hwrite) begin
                         o_valid = 1'b0;
                         o_addr  = i_haddr;
                     end else begin
@@ -98,14 +100,14 @@ module ahb_slave #(
                     end
 					
                 end else begin				
-					o_hreadyout  = 1'b1;
+		    o_hreadyout  = 1'b1;
                     o_hrdata     = 'b0;
                     o_valid      = 1'b0;
                     o_rd0_wr1    = 1'b0;
                     o_wr_data    = 'b0;
                     o_addr       = 'b0;					
-					active_phase = 1'b0;
-					addr_buffer_comb  = 'b0;
+		    active_phase = 1'b0;
+		    addr_buffer_comb  = 'b0;
                     write_buffer_comb = 1'b0;
                 end			
             end
@@ -134,14 +136,14 @@ module ahb_slave #(
                 
                 else if (i_hselx && !write_buffer && active_phase) begin               
                     o_wr_data = 'b0;
-					o_rd0_wr1 = write_buffer;
+		    o_rd0_wr1 = write_buffer;
                     o_addr    = addr_buffer;					
 					
-					if(i_rd_valid) begin
-						o_hrdata = i_rd_data;
-					end else begin 
-						o_hrdata = 'b0;
-					end
+		    if(i_rd_valid) begin
+			o_hrdata = i_rd_data;
+		    end else begin 
+		       o_hrdata = 'b0;
+		    end
 					
                     if (i_hready && i_ready) begin
                         write_buffer_comb = i_hwrite;
@@ -160,17 +162,17 @@ module ahb_slave #(
                 
                 else begin
                     if (i_hselx && i_htrans) begin									
-					o_hreadyout = 1'b1;
+		    o_hreadyout = 1'b1;
                     o_hrdata    = 'b0;
-					o_wr_data   = 'b0;
-					o_rd0_wr1   = i_hwrite;                    
+		    o_wr_data   = 'b0;
+		    o_rd0_wr1   = i_hwrite;                    
 					
                     addr_buffer_comb = i_haddr;
                     write_buffer_comb = i_hwrite;
                     
                     active_phase = 1'b1;				
 					
-					if (i_hwrite) begin
+		   if (i_hwrite) begin
                         o_valid = 1'b0;
                         o_addr  = i_haddr;
                     end else begin
@@ -179,14 +181,14 @@ module ahb_slave #(
                     end
 					
                     end else begin				
-					    o_hreadyout  = 1'b1;
+		       o_hreadyout  = 1'b1;
                         o_hrdata     = 'b0;
                         o_valid      = 1'b0;
                         o_rd0_wr1    = 1'b0;
                         o_wr_data    = 'b0;
                         o_addr       = 'b0;					
-					    active_phase = 1'b0;
-					    addr_buffer_comb  = 'b0;
+			active_phase = 1'b0;
+			addr_buffer_comb  = 'b0;
                         write_buffer_comb = 1'b0;
                     end
                 end
