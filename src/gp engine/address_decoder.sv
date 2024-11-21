@@ -26,10 +26,10 @@ module address_decoder #(parameter ADDR_WIDTH = 32)(
     //   REG_START_ADDR to REG_END_ADDR maps to the Register File
     //   CMD_START_ADDR to CMD_END_ADDR maps to the Command Buffer
     // -----------------------------------------------------------------
-    localparam logic [31:0] REG_START_ADDR = 32'h0000_0000; // Start of Register File range (0)
-    localparam logic [31:0] REG_END_ADDR   = 32'h0000_000C; // End of Register File range (12)
-    localparam logic [31:0] CMD_START_ADDR = 32'h0000_0010; // Start of Command Buffer range (16)
-    localparam logic [31:0] CMD_END_ADDR   = 32'hFFFF_FFFC; // End of Command Buffer range (4,294,967,300)
+    localparam logic [ADDR_WIDTH-1:0] REG_START_ADDR = 32'h0000_0000; // Start of Register File range (0)
+    localparam logic [ADDR_WIDTH-1:0] REG_END_ADDR   = 32'h0000_000C; // End of Register File range (12)
+    localparam logic [ADDR_WIDTH-1:0] CMD_START_ADDR = 32'h0000_0010; // Start of Command Buffer range (16)
+    localparam logic [ADDR_WIDTH-1:0] CMD_END_ADDR   = 32'hFFFF_FFFC; // End of Command Buffer range (4,294,967,300)
 
     // -----------------------------------------------------------------
     // Decode Logic:
