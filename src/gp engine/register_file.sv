@@ -95,7 +95,7 @@ module register_file #(
         end
     end
 
-    // Read configurations for FSM (Vanitasys machine)
+    // Read configurations for FSM 
     always @(posedge i_clk or posedge i_rstn) begin
         if (i_rstn) begin
             // Reset all FSM read signals to zero on reset
