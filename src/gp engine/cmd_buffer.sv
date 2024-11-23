@@ -81,7 +81,7 @@ module cmd_buffer #(
             debug_mode <= cmd_en && !slv_o_rd0_wr1; // Active for debug read transactions.
 
             // **Write Logic**: Two-phase write sequence (data field first, full command next).
-            if (store_mode && !data_written && wr_addr != 128) begin
+	   if (store_mode && !data_written && wr_addr != 32'h0000_04A0) begin
                 // First phase: Write the data field (temporary storage for next phase)
                 temp_data <= slv_o_wr_data;
                 data_written <= 1'b1; // Indicate data has been written
@@ -93,7 +93,7 @@ module cmd_buffer #(
                 data_written <= 1'b0; // Reset data written flag for next write
 	    end else if (store_mode && data_written && pre_transaction_field == RWM && !slv_o_wr_data[1:0] == WRITE) begin
 		// Second phase: Store the full command (address + data)   
-		cmd_mem[wr_addr] <= {slv_o_wr_data[31:2], temp_data , slv_o_wr_data[1:0]}; // Store full command
+		cmd_mem[wr_addr] <= {CMD_WIDTH{1'b0}}; // Store full command
                 pre_transaction_field <= slv_o_wr_data[1:0]; // Store the transaction type (RWM or WRITE)    
                 wr_addr <= wr_addr; // Keep current address if no update
                 data_written <= 1'b0; // Reset data written flag
@@ -103,13 +103,12 @@ module cmd_buffer #(
                 pre_transaction_field <= slv_o_wr_data[1:0]; // Store the transaction type (RWM or WRITE)
                 wr_addr <= wr_addr + 32'h4; // Increment address for next command
                 data_written <= 1'b0; // Reset data written flag for next write    
-            end else begin
+	    end else if ( (!cmd_en || wr_addr == 32'h0000_04A0) && pre_transaction_field == WRITE)begin
                 // End of storing mode: Reset write address and ready for next transaction
-                if (!store_mode && pre_transaction_field == WRITE) begin
-                    wr_addr <= {ADDR_WIDTH{1'b0}}; // Reset address to 0 if WRITE mode is completed
-                    slv_i_ready <= 1'b1; // Ready for next transaction
-                end else begin
-				    reset_mode <= 1'b1;  // not a valid sequece of commands 
+                wr_addr <= {ADDR_WIDTH{1'b0}}; // Reset address to 0 if WRITE mode is completed
+                slv_i_ready <= 1'b1; // Ready for next transaction
+            end else begin
+		    reset_mode <= 1'b1;  // not a valid sequece of commands 
                     wr_addr <= {ADDR_WIDTH{1'b0}}; // Keep current address if no update
                     data_written <= 1'b0; // Reset flag for next write
                     slv_i_ready <= 1'b1; // Ready for next transaction
