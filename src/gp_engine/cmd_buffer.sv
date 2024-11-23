@@ -7,7 +7,7 @@
 // allows the FSM to read back commands for execution.
 //
 // Key Features:
-// 1. Command storage: Supports 256 commands, each 32 bits wide.
+// 1. Command storage: Supports 256 location to save 128 commands, each location 32 bits wide.
 // 2. AHB interface: Handles read and write operations to/from the buffer.
 // 3. FSM interface: Provides stored commands to the FSM for execution.
 // 4. Debugging support: Allows read-back of commands for verification.
