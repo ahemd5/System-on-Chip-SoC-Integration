@@ -1,10 +1,6 @@
 // ---------------------------------------------------------------------------------------------------
 // Module: register_file
 //
-// Parameters:
-//   DATA_WIDTH   : The width of the data for trigger configuration (32 bits).
-//   ADDR_WIDTH   : The width of the address for selecting the trigger source (4 bits).
-//
 // Key Features:
 //   1. This register file module stores configurations for 4 trigger sources.
 //   2. Supports both write and read operations via an external slave interface (AHB Slave).
@@ -13,8 +9,8 @@
 // -----------------------------------------------------------------------------------------------------
 
 module register_file #(
-                        parameter DATA_WIDTH = 32,
-                                  ADDR_WIDTH = 32  // Define the width for address to access the register file
+                        parameter DATA_WIDTH = 32,                                 
+	                          TRANS_ADDR_WIDTH = 8 
 )(
     input wire i_clk,                // Clock signal for the register file
     input wire i_rstn,               // Active-low reset signal for the register file
@@ -37,6 +33,7 @@ module register_file #(
 
     // Register enable signal from address decoder
     input wire reg_en                // Register file enable signal (from address decoder)
+	input logic [TRANS_ADDR_WIDTH-1:0] trans_addr, // Translated address 
 );
 
     // Registers to store trigger configurations for 4 trigger sources
@@ -59,29 +56,29 @@ module register_file #(
             // Check if the register file is enabled by address decoder
             // If slave output is valid, check for write (1) or read (0) operation
                     // Write operation
-                    case (slv_i_addr)
+                    case (trans_addr)
                         // Writing to the trigger source 1 configuration
-                        32'b0000_0000: trigger_config[0] <= slv_i_wr_data;
+                        7'b0000_0000: trigger_config[0] <= slv_i_wr_data;
                         // Writing to the trigger source 2 configuration
-                        32'b0000_0100: trigger_config[1] <= slv_i_wr_data;
+                        7'b0000_0100: trigger_config[1] <= slv_i_wr_data;
                         // Writing to the trigger source 3 configuration
-                        32'b0000_1000: trigger_config[2] <= slv_i_wr_data;
+                        7'b0000_1000: trigger_config[2] <= slv_i_wr_data;
                         // Writing to the trigger source 4 configuration
-                        32'b0000_1100: trigger_config[3] <= slv_i_wr_data;
+                        7'b0000_1100: trigger_config[3] <= slv_i_wr_data;
                         default: ;  // Do nothing for invalid addresses
                     endcase
                     slv_i_ready <= 1'b1;  // Indicate that the register file is ready for the next write operation
         end else if (slv_o_valid && !slv_i_rd0_wr1) begin
                     // Read operation (debugging mode)
-                    case (slv_i_addr)
+                    case (trans_addr)
                         // Reading trigger source 1 configuration
-                        32'b0000_0000: slv_o_read_data <= trigger_config[0];
+                        7'b0000_0000: slv_o_read_data <= trigger_config[0];
                         // Reading trigger source 2 configuration
-                        32'b0000_0100: slv_o_read_data <= trigger_config[1];
+                        7'b0000_0100: slv_o_read_data <= trigger_config[1];
                         // Reading trigger source 3 configuration
-                        32'b0000_1000: slv_o_read_data <= trigger_config[2];
+                        7'b0000_1000: slv_o_read_data <= trigger_config[2];
                         // Reading trigger source 4 configuration
-                        32'b0000_1100: slv_o_read_data <= trigger_config[3];
+                        7'b0000_1100: slv_o_read_data <= trigger_config[3];
                         default: slv_o_read_data <= {DATA_WIDTH{1'b0}};  // Invalid address, return 0
                     endcase
                     slv_o_rd_valid <= 1'b1;  // Indicate valid read data
