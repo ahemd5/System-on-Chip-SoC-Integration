@@ -89,7 +89,7 @@ module register_file #(
                     slv_o_rd_valid <= 1'b1;  // Indicate valid read data
                 end
         end else begin
-            // Reset the ready and read valid signals if slave output is not valid
+            // Reset the ready and read valid signals if register file unenabled
             slv_i_ready <= 1'b0;
             slv_o_rd_valid <= 1'b0;
         end
