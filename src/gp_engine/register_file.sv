@@ -100,7 +100,7 @@ module register_file #(
             rd_trig_s2_config <= {DATA_WIDTH{1'b0}};
             rd_trig_s3_config <= {DATA_WIDTH{1'b0}};
             rd_trig_s4_config <= {DATA_WIDTH{1'b0}};
-        end else if (reg_rd_en) begin
+        end else if (reg_rd_en && (!reg_en || (!reg_en && !slv_i_rd0_wr1))) begin
             // If FSM has enabled register read
             rd_trig_s1_config <= trigger_config[0];
             rd_trig_s2_config <= trigger_config[1];
