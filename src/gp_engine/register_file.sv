@@ -85,7 +85,7 @@ module register_file #(
                 end
         end else begin
             // Reset the ready and read valid signals if slave output is not valid and reg file not enabled 
-			slv_o_read_data <= {DATA_WIDTH{1'b0}};
+	    slv_o_read_data <= {DATA_WIDTH{1'b0}};
             slv_i_ready <= 1'b1;
             slv_o_rd_valid <= 1'b0;
         end
