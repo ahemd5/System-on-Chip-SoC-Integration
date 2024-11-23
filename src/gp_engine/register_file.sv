@@ -12,19 +12,19 @@ module register_file #(
                         parameter DATA_WIDTH = 32,                                 
 	                          TRANS_ADDR_WIDTH = 8 
 )(
-    input wire i_clk,                // Clock signal for the register file
-    input wire i_rstn,               // Active-low reset signal for the register file
+    input logic i_clk,                // Clock signal for the register file
+    input logic i_rstn,               // Active-low reset signal for the register file
     
     // Interface with EBB slave (write and read operations)
-    input wire slv_o_valid,          // Slave output valid signal (indicates the validity of the slave's request)
-    input wire [DATA_WIDTH-1:0] slv_i_wr_data,  // Data to write into the register file
-    input wire slv_i_rd0_wr1,        // Signal to distinguish between read (0) and write (1) operations
+    input logic slv_o_valid,          // Slave output valid signal (indicates the validity of the slave's request)
+    input logic [DATA_WIDTH-1:0] slv_i_wr_data,  // Data to write into the register file
+    input logic slv_i_rd0_wr1,        // Signal to distinguish between read (0) and write (1) operations
     output reg slv_i_ready,          // Slave interface ready signal (indicates that register file is ready for new transaction)
     output reg [DATA_WIDTH-1:0] slv_o_read_data,  // Data read from the register file (on read operation)
     output reg slv_o_rd_valid,       // Read valid signal (indicates that read data is valid)
     
     // Interface with FSM (to read configurations of trigger sources)
-    input wire reg_rd_en,            // Register read enable signal (from FSM)
+    input logic reg_rd_en,            // Register read enable signal (from FSM)
     output reg [DATA_WIDTH-1:0] rd_trig_s1_config,  // Configuration for trigger source 1
     output reg [DATA_WIDTH-1:0] rd_trig_s2_config,  // Configuration for trigger source 2
     output reg [DATA_WIDTH-1:0] rd_trig_s3_config,  // Configuration for trigger source 3
@@ -32,8 +32,8 @@ module register_file #(
     output reg reg_rd_valid,         // Register read valid signal (indicates the validity of the read data to FSM)
 
     // Register enable signal from address decoder
-    input wire reg_en                // Register file enable signal (from address decoder)
-	input logic [TRANS_ADDR_WIDTH-1:0] trans_addr, // Translated address 
+    input logic reg_en                // Register file enable signal (from address decoder)
+    input logic [TRANS_ADDR_WIDTH-1:0] trans_addr, // Translated address 
 );
 
     // Registers to store trigger configurations for 4 trigger sources
