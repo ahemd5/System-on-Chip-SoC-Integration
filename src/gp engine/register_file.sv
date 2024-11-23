@@ -106,11 +106,11 @@ module register_file #(
             rd_trig_s4_config <= {DATA_WIDTH{1'b0}};
         end else if (reg_rd_en) begin
             // If FSM has enabled register read
-                rd_trig_s1_config <= trigger_config[0];
-                rd_trig_s2_config <= trigger_config[1];
-                rd_trig_s3_config <= trigger_config[2];
-                rd_trig_s4_config <= trigger_config[3];
-                reg_rd_valid <= 1'b1;  // Indicate valid configuration data to FSM
+            rd_trig_s1_config <= trigger_config[0];
+            rd_trig_s2_config <= trigger_config[1];
+            rd_trig_s3_config <= trigger_config[2];
+            rd_trig_s4_config <= trigger_config[3];
+            reg_rd_valid <= 1'b1;  // Indicate valid configuration data to FSM
         end else begin
             // Reset register read valid signal if FSM has not enabled read
             reg_rd_valid <= 1'b0;
