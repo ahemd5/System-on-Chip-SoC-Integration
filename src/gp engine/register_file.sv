@@ -7,9 +7,9 @@
 //
 // Key Features:
 //   1. This register file module stores configurations for 4 trigger sources.
-//   2. Supports both write and read operations via an external slave interface (EBB Slave).
+//   2. Supports both write and read operations via an external slave interface (AHB Slave).
 //   3. Provides handshaking signals to ensure correct data transfer with the slave interface.
-//   4. Supports FSM (Vanitasys machine) access to read configurations from the register file.
+//   4. Supports FSM access to read configurations from the register file.
 //   5. Prevents sending valid read data if all configurations are zero.
 // -----------------------------------------------------------------------------------------------------
 
