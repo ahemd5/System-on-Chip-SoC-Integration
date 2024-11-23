@@ -130,8 +130,6 @@ module cmd_buffer #(
         end
     end
 
-endmodule
-
  always @(posedge clk ) begin
            // **FSM Read Logic**
            if (cmd_rd_en && !reset_mode ) begin
@@ -143,3 +141,4 @@ endmodule
             end
  end 
 
+endmodule
