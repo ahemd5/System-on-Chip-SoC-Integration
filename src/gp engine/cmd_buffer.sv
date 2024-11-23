@@ -40,7 +40,7 @@ module cmd_buffer #(
     // 1. **Command Storage**: Stores up to `CMD_DEPTH` commands, each `CMD_WIDTH` wide, for execution by an FSM.
     // 2. **AHB-Lite Interface**: Supports word-aligned read and write transactions with a 32-bit data width.
     // 3. **Sequenced Writes**: Commands are stored in two phases (transaction , data and address fields).
-	// 4. **proper sequence**: commands should terminate by WRITE if not reset buffer , RWM followed by RWM
+    // 4. **proper sequence**: commands should terminate by WRITE if not reset buffer , RWM followed by RWM
     // 5. **Debugging Capability**: Allows reading back commands in 32-bit chunks for validation or debugging.
     // 6. **Reset Functionality**: Clears the command buffer and resets all internal flags upon system reset.
 
@@ -85,18 +85,24 @@ module cmd_buffer #(
                 // First phase: Write the data field (temporary storage for next phase)
                 temp_data <= slv_o_wr_data;
                 data_written <= 1'b1; // Indicate data has been written
-            end else if (store_mode && data_written) begin
+	    end else if (store_mode && data_written && pre_transaction_field == RWM && slv_o_wr_data[1:0] == WRITE) begin
                 // Second phase: Store the full command (address + data)
                 cmd_mem[wr_addr] <= {slv_o_wr_data[31:2], temp_data , slv_o_wr_data[1:0]}; // Store full command
                 pre_transaction_field <= slv_o_wr_data[1:0]; // Store the transaction type (RWM or WRITE)
-                
-                if (pre_transaction_field == RWM && slv_o_wr_data[1:0] == WRITE) begin
-                    wr_addr <= wr_addr + 32'h4; // Increment address for next command
-                    data_written <= 1'b0; // Reset data written flag for next write
-                end else begin
-                    wr_addr <= wr_addr; // Keep current address if no update
-                    data_written <= 1'b0; // Reset data written flag
-                end
+                wr_addr <= wr_addr + 32'h4; // Increment address for next command
+                data_written <= 1'b0; // Reset data written flag for next write
+	    end else if (store_mode && data_written && pre_transaction_field == RWM && !slv_o_wr_data[1:0] == WRITE) begin
+		// Second phase: Store the full command (address + data)   
+		cmd_mem[wr_addr] <= {slv_o_wr_data[31:2], temp_data , slv_o_wr_data[1:0]}; // Store full command
+                pre_transaction_field <= slv_o_wr_data[1:0]; // Store the transaction type (RWM or WRITE)    
+                wr_addr <= wr_addr; // Keep current address if no update
+                data_written <= 1'b0; // Reset data written flag
+	    end else if (store_mode && data_written) begin
+                // Second phase: Store the full command (address + data)
+                cmd_mem[wr_addr] <= {slv_o_wr_data[31:2], temp_data , slv_o_wr_data[1:0]}; // Store full command
+                pre_transaction_field <= slv_o_wr_data[1:0]; // Store the transaction type (RWM or WRITE)
+                wr_addr <= wr_addr + 32'h4; // Increment address for next command
+                data_written <= 1'b0; // Reset data written flag for next write    
             end else begin
                 // End of storing mode: Reset write address and ready for next transaction
                 if (!store_mode && pre_transaction_field == WRITE) begin
