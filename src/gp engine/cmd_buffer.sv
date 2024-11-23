@@ -43,8 +43,8 @@ module cmd_buffer #(
     // 4. **proper sequence**: commands should terminate by WRITE if not reset buffer , RWM followed by RWM
     // 5. **Debugging Capability**: Allows reading back commands in 32-bit chunks for validation or debugging.
     // 6. **Reset Functionality**: Clears the command buffer and resets all internal flags upon system reset.
-
-	local parameter [1:0] RWM = 2'b01 , WRITE = 2'b00;
+   
+   localparam [1:0] RWM = 2'b01 , WRITE = 2'b00;
 	
     // **Internal Registers and Memory**
     reg reset_mode;       // Indicates CMD Buffer is in reset mode.
@@ -56,6 +56,7 @@ module cmd_buffer #(
     reg [DATA_WIDTH-1:0] temp_data;  // Temporary storage for the first phase of a write.
     reg data_written;     // Tracks whether the first phase of a two-step write is complete.
     reg readed_data;      // Tracks the phase of read operations for debugging.
+    integer i;
 
     // **Always Block**: Handles reset, mode switching, command storage, and debugging logic.
     always @(posedge clk or negedge rst_n) begin
@@ -70,7 +71,6 @@ module cmd_buffer #(
             readed_data <= 1'b0;
 
             // Clear all commands in memory
-            integer i;
             for (i = 0; i < CMD_DEPTH; i = i + 1) begin
                 cmd_mem[i] <= {CMD_WIDTH{1'b0}};
             end
@@ -112,7 +112,6 @@ module cmd_buffer #(
                     wr_addr <= {ADDR_WIDTH{1'b0}}; // Keep current address if no update
                     data_written <= 1'b0; // Reset flag for next write
                     slv_i_ready <= 1'b1; // Ready for next transaction
-                end
             end
 
             // **FSM Read Logic**
