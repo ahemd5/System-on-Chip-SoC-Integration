@@ -114,7 +114,7 @@ module cmd_buffer #(
             end
 
             // **FSM Read Logic**
-            if (cmd_rd_en) begin
+           if (cmd_rd_en && !reset_mode ) begin
                 cmd_out <= cmd_mem[cmd_addr]; // Send the command stored at the specified address
                 cmd_rd_valid <= 1'b1; // Indicate that the command read is valid
             end else begin
