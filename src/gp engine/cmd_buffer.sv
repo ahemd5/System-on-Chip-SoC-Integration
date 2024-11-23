@@ -113,15 +113,6 @@ module cmd_buffer #(
                     slv_i_ready <= 1'b1; // Ready for next transaction
             end
 
-            // **FSM Read Logic**
-           if (cmd_rd_en && !reset_mode ) begin
-                cmd_out <= cmd_mem[cmd_addr]; // Send the command stored at the specified address
-                cmd_rd_valid <= 1'b1; // Indicate that the command read is valid
-            end else begin
-                cmd_out <= {CMD_WIDTH{1'b0}}; // Send zero if no read is requested
-                cmd_rd_valid <= 1'b0; // Indicate no valid read operation
-            end
-
             // **Debugging Logic**: Allows read-back of commands in 32-bit chunks.
             if (debug_mode && !readed_data) begin
                 slv_i_rd_data <= cmd_mem[slv_o_addr][31:0]; // Read the lower 32 bits (data field)
@@ -140,4 +131,15 @@ module cmd_buffer #(
     end
 
 endmodule
+
+ always @(posedge clk ) begin
+           // **FSM Read Logic**
+           if (cmd_rd_en && !reset_mode ) begin
+                cmd_out <= cmd_mem[cmd_addr]; // Send the command stored at the specified address
+                cmd_rd_valid <= 1'b1; // Indicate that the command read is valid
+            end else begin
+                cmd_out <= {CMD_WIDTH{1'b0}}; // Send zero if no read is requested
+                cmd_rd_valid <= 1'b0; // Indicate no valid read operation
+            end
+ end 
 
