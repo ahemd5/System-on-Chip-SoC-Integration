@@ -61,7 +61,7 @@ module cmd_buffer #(
                 slv_i_ready <= 1'b1; // Indicate buffer is ready for new transactions
             end 
             // AHB Read Transaction: Debugging logic
-            else if (slv_o_valid && !slv_o_rd0_wr1) begin
+	    else if (cmd_en && slv_o_valid && !slv_o_rd0_wr1) begin
                 slv_i_rd_data <= cmd_mem[trans_addr][31:0]; // Read 32-bit data from memory
                 slv_i_rd_valid <= 1'b1; // Indicate read data is valid
 				slv_i_ready <= 1'b1; // Indicate buffer is ready for new transactions
