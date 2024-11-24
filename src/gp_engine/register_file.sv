@@ -68,7 +68,7 @@ module register_file #(
                         default: ;  // Do nothing for invalid addresses
                     endcase
                     slv_i_ready <= 1'b1;  // Indicate that the register file is ready for the next write operation
-        end else if (slv_o_valid && !slv_i_rd0_wr1) begin
+	end else if (reg_en && slv_o_valid && !slv_i_rd0_wr1) begin
                     // Read operation (debugging mode)
                     case (trans_addr)
                         // Reading trigger source 1 configuration
