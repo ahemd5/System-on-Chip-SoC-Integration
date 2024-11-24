@@ -73,7 +73,7 @@ module cmd_buffer #(
             end
 
             // FSM Read Transaction: Provide stored command to FSM
-            if (cmd_rd_en && (!cmd_en || (!cmd_en && !slv_o_rd0_wr1))) begin
+            if (cmd_rd_en && (!cmd_en || (cmd_en && !slv_o_rd0_wr1))) begin
                 cmd_out <= {cmd_mem[cmd_addr + 32'h4][31:2], cmd_mem[cmd_addr], cmd_mem[cmd_addr + 32'h4][1:0]}; // Send 64-bit command
                 cmd_rd_valid <= 1'b1; // Indicate valid read operation
             end else begin
