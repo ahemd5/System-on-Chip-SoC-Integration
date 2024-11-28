@@ -83,35 +83,35 @@ module fsm #(
     // Address management for triggers
     reg [ADDR_WIDTH-1:0] trig_s1_str_add, trig_s2_str_add;
     reg [ADDR_WIDTH-1:0] trig_s3_str_add, trig_s4_str_add;
-	reg [ADDR_WIDTH-1:0] trig_s1_str_add_reg ,trig_s2_str_add_reg ;
-	reg [ADDR_WIDTH-1:0] trig_s3_str_add_reg ,trig_s4_str_add_reg ;
+    reg [ADDR_WIDTH-1:0] trig_s1_str_add_reg ,trig_s2_str_add_reg ;
+    reg [ADDR_WIDTH-1:0] trig_s3_str_add_reg ,trig_s4_str_add_reg ;
     reg [ADDR_WIDTH-1:0] current_cmd_addr; // Current command address
 	
-	reg poll_0_flag ,poll_0_flag_comb;
-	reg poll_1_flag ,poll_1_flag_comb;
-	reg RWM_flag ,RWM_flag_comb;
+    reg poll_0_flag ,poll_0_flag_comb;
+    reg poll_1_flag ,poll_1_flag_comb;  
+    reg RWM_flag ,RWM_flag_comb;
 
     // FSM state update
     always @(posedge i_clk or negedge i_rstn) begin
         if (!i_rstn) begin
             current_state <= IDLE;
             i_str_trig_prev <= 'b0;  // Reset trigger state
-			cmd_addr <= 'b0;         // Reset command address
+	    cmd_addr <= 'b0;         // Reset command address
         end else begin
             mask_reg <= mask;                       // Save mask value
-			RWM_flag <= RWM_flag_comb;
-			current_state <= next_state;            // Update current state
-			cmd_addr <= current_cmd_addr;           // Update command address
-			i_str_trig_prev <= i_str_trig;          // Store previous trigger states
-			active_trig <= active_trig_comb;        // Update active triggers flag 
-			poll_0_flag <= poll_0_flag_comb;
-			poll_1_flag <= poll_1_flag_comb;
+	    RWM_flag <= RWM_flag_comb;
+	    current_state <= next_state;            // Update current state
+	    cmd_addr <= current_cmd_addr;           // Update command address
+	    i_str_trig_prev <= i_str_trig;          // Store previous trigger states
+	    active_trig <= active_trig_comb;        // Update active triggers flag 
+	    poll_0_flag <= poll_0_flag_comb;
+	    poll_1_flag <= poll_1_flag_comb;
             modified_value_reg <= modified_value;   // Save modified value
-			previous_state_reg <= previous_state;   // Save previous state                     
-			trig_s1_str_add_reg <= trig_s1_str_add;
-	        trig_s2_str_add_reg <= trig_s2_str_add;
-		    trig_s3_str_add_reg <= trig_s3_str_add;
-		    trig_s4_str_add_reg <= trig_s4_str_add;
+	    previous_state_reg <= previous_state;   // Save previous state                     
+	    trig_s1_str_add_reg <= trig_s1_str_add;
+	    trig_s2_str_add_reg <= trig_s2_str_add;
+	    trig_s3_str_add_reg <= trig_s3_str_add;
+	    trig_s4_str_add_reg <= trig_s4_str_add;
         end
     end
 	
@@ -134,10 +134,10 @@ module fsm #(
         trig_falling_edge = 'b0;
         active_trig_comb = 'b0;
 		
-		trig_s1_str_add = 'b0;
-	    trig_s2_str_add = 'b0;
-		trig_s3_str_add = 'b0;
-		trig_s4_str_add = 'b0;
+	trig_s1_str_add = 'b0;
+	trig_s2_str_add = 'b0;
+	trig_s3_str_add = 'b0;
+	trig_s4_str_add = 'b0;
 
         txn_type = 'b0;
         addr_field = 'b0;
@@ -148,9 +148,9 @@ module fsm #(
         modified_value = 'b0;
         previous_state = IDLE;
 		
-		poll_0_flag_comb = 1'b0;
-		poll_1_flag_comb = 1'b0;
-		RWM_flag_comb = 1'b0;
+	poll_0_flag_comb = 1'b0;
+	poll_1_flag_comb = 1'b0;
+	RWM_flag_comb = 1'b0;
 
         case (current_state)
             IDLE: begin
@@ -187,22 +187,22 @@ module fsm #(
                 if (active_trig[0] && current_cmd_addr == 'b0) begin
                     cmd_rd_en = 1;                       // Enable command read
                     current_cmd_addr = trig_s1_str_add;  // Set command address for trigger 1
-					active_trig_comb[0]= 1'b0 ;
+		   active_trig_comb[0]= 1'b0 ;
                     next_state = FETCH_CMD;              // Transition to command fetch state
                 end else if (active_trig[1] && current_cmd_addr == 'b0) begin
                     cmd_rd_en = 1;
                     current_cmd_addr = trig_s2_str_add;  // Trigger 2
-					active_trig_comb[1]= 1'b0 ;
+		    active_trig_comb[1]= 1'b0 ;
                     next_state = FETCH_CMD;
                 end else if (active_trig[2] && current_cmd_addr == 'b0) begin
                     cmd_rd_en = 1;
                     current_cmd_addr = trig_s3_str_add;  // Trigger 3
-					active_trig_comb[2]= 1'b0 ;
+		    active_trig_comb[2]= 1'b0 ;
                     next_state = FETCH_CMD;
                 end else if (active_trig[3] && current_cmd_addr == 'b0) begin
                     cmd_rd_en = 1;
                     current_cmd_addr = trig_s4_str_add;  // Trigger 4
-					active_trig_comb[3]= 1'b0 ;
+		    active_trig_comb[3]= 1'b0 ;
                     next_state = FETCH_CMD;
                 end else begin
                     // No active trig; remain in IDLE
@@ -256,17 +256,17 @@ module fsm #(
 						current_cmd_addr = trig_s2_str_add; 
 						active_trig_comb[1]= 1'b0 ;  
 						next_state = FETCH_CMD;
-					end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
+		   end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
 					    cmd_rd_en = 1;
 						current_cmd_addr = trig_s3_str_add; 
 					    active_trig_comb[2]= 1'b0 ;
 						next_state = FETCH_CMD;
-					end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
+		   end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
 					    cmd_rd_en = 1;
 						current_cmd_addr = trig_s4_str_add; 
 					    active_trig_comb[3]= 1'b0 ;
 						next_state = FETCH_CMD;
-					end else begin
+		   end else begin
 					    cmd_rd_en = 1;
 						current_cmd_addr = cmd_addr + 32'h2; // Increment command address
 						next_state = FETCH_CMD;
