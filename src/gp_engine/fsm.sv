@@ -253,23 +253,23 @@ module fsm #(
                     // Write completed successfully; fetch the next command
                     if (active_trig[1] && (cmd_addr + 32'h2) == trig_s2_str_add_reg) begin                        
                         cmd_rd_en = 1;
-						current_cmd_addr = trig_s2_str_add; 
-						active_trig_comb[1]= 1'b0 ;  
-						next_state = FETCH_CMD;
-		   end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
-					    cmd_rd_en = 1;
-						current_cmd_addr = trig_s3_str_add; 
-					    active_trig_comb[2]= 1'b0 ;
-						next_state = FETCH_CMD;
-		   end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
-					    cmd_rd_en = 1;
-						current_cmd_addr = trig_s4_str_add; 
-					    active_trig_comb[3]= 1'b0 ;
-						next_state = FETCH_CMD;
-		   end else begin
-					    cmd_rd_en = 1;
-						current_cmd_addr = cmd_addr + 32'h2; // Increment command address
-						next_state = FETCH_CMD;
+			current_cmd_addr = trig_s2_str_add; 
+			active_trig_comb[1]= 1'b0 ;  
+			next_state = FETCH_CMD;
+	            end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
+			cmd_rd_en = 1;
+			current_cmd_addr = trig_s3_str_add; 
+			active_trig_comb[2]= 1'b0 ;
+			next_state = FETCH_CMD;
+		    end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
+			cmd_rd_en = 1;
+			current_cmd_addr = trig_s4_str_add; 
+			active_trig_comb[3]= 1'b0 ;
+			next_state = FETCH_CMD;
+		    end else begin
+			cmd_rd_en = 1;
+			current_cmd_addr = cmd_addr + 32'h2; // Increment command address
+			next_state = FETCH_CMD;
                     end		
 
                 end else if (previous_state_reg == RMW && fsm_i_ready) begin
@@ -282,30 +282,30 @@ module fsm #(
                     // Write completed successfully; fetch the next command
                     if (fsm_i_ready && active_trig[1] && (cmd_addr + 32'h2) == trig_s2_str_add_reg) begin                        
                         cmd_rd_en = 1;
-						current_cmd_addr = trig_s2_str_add; 
-						active_trig_comb[1]= 1'b0 ;  
-						next_state = FETCH_CMD;
-					end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
-					    cmd_rd_en = 1;
-						current_cmd_addr = trig_s3_str_add; 
-					    active_trig_comb[2]= 1'b0 ;
-						next_state = FETCH_CMD;
-					end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
-					    cmd_rd_en = 1;
-						current_cmd_addr = trig_s4_str_add; 
-					    active_trig_comb[3]= 1'b0 ;
-						next_state = FETCH_CMD;
-					end else begin
-					    cmd_rd_en = 1;
-						current_cmd_addr = cmd_addr + 32'h2; // Increment command address
-						next_state = FETCH_CMD;
+			current_cmd_addr = trig_s2_str_add; 
+			active_trig_comb[1]= 1'b0 ;  
+			next_state = FETCH_CMD;
+		    end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
+			cmd_rd_en = 1;
+			current_cmd_addr = trig_s3_str_add; 
+			active_trig_comb[2]= 1'b0 ;
+			next_state = FETCH_CMD;
+		     end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
+			cmd_rd_en = 1;
+			current_cmd_addr = trig_s4_str_add; 
+			active_trig_comb[3]= 1'b0 ;
+			next_state = FETCH_CMD;
+		    end else begin
+			cmd_rd_en = 1;
+			current_cmd_addr = cmd_addr + 32'h2; // Increment command address
+			next_state = FETCH_CMD;
                     end		
 					
                 end else begin
                     cmd_rd_en = 0;
                     current_cmd_addr = cmd_addr;
                     next_state = WRITE;
-				end	
+		end	
             end
 
             RMW: begin
@@ -314,13 +314,13 @@ module fsm #(
                     fsm_o_valid = 1;                     // Indicate valid operation
                     fsm_o_rd_wr = 0;                     // Set to read operation
                     fsm_o_addr = addr_field;             // Address to poll
-				end else begin 
-				    fsm_o_valid = 1;                     // Indicate valid operation
-				end
+		end else begin 
+		    fsm_o_valid = 1;                     // Indicate valid operation
+		end
 				
                 if (fsm_i_rd_valid & fsm_i_ready) begin 
 				
-					cmd_rd_en = 1;                         // Enable command read
+		   cmd_rd_en = 1;                         // Enable command read
                     read_value = fsm_i_rd_data;            // Store read data
                     mask = data_field;                     // Apply mask from data field
                     modified_value = read_value & (~mask); // Compute modified value
@@ -328,20 +328,20 @@ module fsm #(
 					
                     if(active_trig[1] && (cmd_addr + 32'h2) == trig_s2_str_add) begin
                         current_cmd_addr = trig_s2_str_add; 
-						active_trig_comb[1]= 1'b0 ;
-				    end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
-						current_cmd_addr = trig_s3_str_add; 
-						active_trig_comb[2]= 1'b0 ;
-					end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
-						current_cmd_addr = trig_s4_str_add; 
-						active_trig_comb[3]= 1'b0 ;
-					end else begin
-						current_cmd_addr = cmd_addr + 32'h2; // Increment command address
+			active_trig_comb[1]= 1'b0 ;
+		    end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
+			current_cmd_addr = trig_s3_str_add; 
+			active_trig_comb[2]= 1'b0 ;
+		    end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
+			current_cmd_addr = trig_s4_str_add; 
+			active_trig_comb[3]= 1'b0 ;
+		    end else begin
+			current_cmd_addr = cmd_addr + 32'h2; // Increment command address
                     end								
                     next_state = FETCH_CMD;              // Move to next command
 					
                 end else begin
-				    RWM_flag_comb = 1;
+		    RWM_flag_comb = 1;
                     cmd_rd_en = 0;                       // No command read
                     read_value = 32'b0;                  // Clear read value
                     mask = data_field;                   // Maintain mask value
@@ -358,24 +358,24 @@ module fsm #(
                     fsm_o_valid = 1;                     // Indicate valid operation
                     fsm_o_rd_wr = 0;                     // Set to read operation
                     fsm_o_addr = addr_field;             // Address to poll
-				end else begin 
-				    fsm_o_valid = 1;                     // Indicate valid operation
-				end
+		end else begin 
+		    fsm_o_valid = 1;                     // Indicate valid operation
+		end
 				
                 if (fsm_i_ready && fsm_i_rd_valid && ((fsm_i_rd_data & data_field) == data_field)) begin
-				
+	
                     cmd_rd_en = 1;                   // Enable command read					
                     if(active_trig[1] && (cmd_addr + 32'h2) == trig_s2_str_add_reg) begin
                         current_cmd_addr = trig_s2_str_add; 
-						active_trig_comb[1]= 1'b0 ;
-					end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
-						current_cmd_addr = trig_s3_str_add; 
-						active_trig_comb[2]= 1'b0 ;
-					end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
-						current_cmd_addr = trig_s4_str_add;
-					    active_trig_comb[3]= 1'b0 ;
-					end else begin
-						current_cmd_addr = cmd_addr + 32'h2; // Increment command address
+			active_trig_comb[1]= 1'b0 ;
+		    end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
+			current_cmd_addr = trig_s3_str_add; 
+			active_trig_comb[2]= 1'b0 ;
+		    end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
+			current_cmd_addr = trig_s4_str_add;
+			active_trig_comb[3]= 1'b0 ;
+		    end else begin
+			current_cmd_addr = cmd_addr + 32'h2; // Increment command address
                     end						
                     next_state = FETCH_CMD;          // Move to next command
 					
@@ -384,15 +384,15 @@ module fsm #(
                     cmd_rd_en = 1;                   // Enable command read					
                     if(active_trig[1] && (cmd_addr + 32'h2) == trig_s2_str_add_reg) begin
                         current_cmd_addr = trig_s2_str_add; 
-						active_trig_comb[1]= 1'b0 ;
-					end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
-						current_cmd_addr = trig_s3_str_add; 
-						active_trig_comb[2]= 1'b0 ;
-					end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
-						current_cmd_addr = trig_s4_str_add; 
-						active_trig_comb[3]= 1'b0 ;
-					end else begin
-						current_cmd_addr = cmd_addr + 32'h2; // Increment command address
+			active_trig_comb[1]= 1'b0 ;
+		    end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
+			current_cmd_addr = trig_s3_str_add; 
+			active_trig_comb[2]= 1'b0 ;
+		    end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
+			current_cmd_addr = trig_s4_str_add; 
+			active_trig_comb[3]= 1'b0 ;
+		    end else begin
+			current_cmd_addr = cmd_addr + 32'h2; // Increment command address
                     end							
                     next_state = FETCH_CMD;          // Move to next command
 					
@@ -409,51 +409,51 @@ module fsm #(
 
             POLL_0: begin
                 // Poll for 0 operation
-				if (fsm_i_ready && poll_0_flag != 1) begin 
+		if (fsm_i_ready && poll_0_flag != 1) begin 
                     fsm_o_valid = 1;                     // Indicate valid operation
                     fsm_o_rd_wr = 0;                     // Set to read operation
                     fsm_o_addr = addr_field;             // Address to poll
-				end else begin 
-				    fsm_o_valid = 1;                     // Indicate valid operation
-				end
+		end else begin 
+		    fsm_o_valid = 1;                     // Indicate valid operation
+		end
 				
                 if (fsm_i_ready && fsm_i_rd_valid && ((fsm_i_rd_data & data_field) == data_field)) begin
                     
-					cmd_rd_en = 1;                   // Enable command read					
+		    cmd_rd_en = 1;                   // Enable command read					
                     if(active_trig[1] && (cmd_addr + 32'h2) == trig_s2_str_add_reg) begin
                         current_cmd_addr = trig_s2_str_add; 
-					    active_trig_comb[1]= 1'b0 ;
-					end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
-						current_cmd_addr = trig_s3_str_add; 
-					    active_trig_comb[2]= 1'b0 ;
-					end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
-						current_cmd_addr = trig_s4_str_add; 
-					    active_trig_comb[3]= 1'b0 ;
-					end else begin
-						current_cmd_addr = cmd_addr + 32'h2; // Increment command address
+			active_trig_comb[1]= 1'b0 ;
+		    end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
+			current_cmd_addr = trig_s3_str_add; 
+			active_trig_comb[2]= 1'b0 ;
+		    end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
+			current_cmd_addr = trig_s4_str_add; 
+			active_trig_comb[3]= 1'b0 ;
+		    end else begin
+			current_cmd_addr = cmd_addr + 32'h2; // Increment command address
                     end							
                     next_state = FETCH_CMD;          // Move to next command
 					
                 end else if (fsm_i_ready && fsm_i_rd_valid && ((fsm_i_rd_data & data_field) == 32'h0000_0000)) begin
                     
-					cmd_rd_en = 1;                   // Enable command read					
+		    cmd_rd_en = 1;                   // Enable command read					
                     if(active_trig[1] && (cmd_addr + 32'h2) == trig_s2_str_add_reg) begin
                         current_cmd_addr = trig_s2_str_add; 
-					    active_trig_comb[1]= 1'b0 ;
-				    end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
-						current_cmd_addr = trig_s3_str_add; 
-					    active_trig_comb[2]= 1'b0 ;
-					end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
-						current_cmd_addr = trig_s4_str_add; 
-					    active_trig_comb[3]= 1'b0 ;
-					end else begin
-						current_cmd_addr = cmd_addr + 32'h2; // Increment command address
+			active_trig_comb[1]= 1'b0 ;
+		    end else if (active_trig[2] && (cmd_addr + 32'h2) == trig_s3_str_add_reg) begin
+			current_cmd_addr = trig_s3_str_add; 
+		        active_trig_comb[2]= 1'b0 ;
+		    end else if (active_trig[3] && (cmd_addr + 32'h2) == trig_s4_str_add_reg) begin
+			current_cmd_addr = trig_s4_str_add; 
+			active_trig_comb[3]= 1'b0 ;
+		    end else begin
+			current_cmd_addr = cmd_addr + 32'h2; // Increment command address
                     end							
                     next_state = FETCH_CMD;          // Move to next command
 					
                 end else begin
-				    poll_0_flag_comb = 1'b1;
-				    fsm_o_valid = 1;                 // Indicate valid operation
+		    poll_0_flag_comb = 1'b1;
+		    fsm_o_valid = 1;                 // Indicate valid operation
                     fsm_o_rd_wr = 0;                 // Set to read operation
                     fsm_o_addr = addr_field;         // Address to poll
                     cmd_rd_en = 0;                   // No command read
