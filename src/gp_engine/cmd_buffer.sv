@@ -1,5 +1,6 @@
 // -----------------------------------------------------------------------------
 // Module Name: cmd_buffer
+//
 // Description: 
 // This module implements a command buffer that stores and retrieves commands. 
 // It interfaces with a Finite State Machine (FSM), an address decoder, and an 
@@ -14,10 +15,10 @@
 // -----------------------------------------------------------------------------
 
 module cmd_buffer #(
-    parameter CMD_WIDTH = 32,         // Width of each command
-    parameter CMD_DEPTH = 256,        // Number of commands (memory depth)
-    parameter ADDR_WIDTH = 32,        // Address width for the commands
+    parameter CMD_WIDTH = 64,         // Width of each command
     parameter DATA_WIDTH = 32,        // Data width for each write transaction
+    parameter BUFFER_WIDTH = 32,      // Width of command buffer
+    parameter BUFFER_DEPTH = 256,     // command buffer depth
     parameter TRANS_ADDR_WIDTH = 8    // Translated address width (8 bits for 256 locations)
 )(
     // Clock and Reset
@@ -25,10 +26,10 @@ module cmd_buffer #(
     input logic                  rst_n,         // Active-low reset
 
     // Interface with FSM (Finite State Machine)
-    input logic                  cmd_rd_en,     // Enable signal for FSM to read command
-    input logic [ADDR_WIDTH-1:0] cmd_addr,      // Address from FSM to read command
-    output reg                   cmd_rd_valid,  // Indication that the read operation is valid
-    output reg  [CMD_WIDTH-1:0]  cmd_out,       // Command sent to FSM for execution
+    input logic                        cmd_rd_en,     // Enable signal for FSM to read command
+    input logic [TRANS_ADDR_WIDTH-1:0] cmd_addr,      // Address from FSM to read command
+    output reg                         cmd_rd_valid,  // Indication that the read operation is valid
+    output reg  [CMD_WIDTH-1:0]        cmd_out,       // Command sent to FSM for execution
 
     // Interface with Address Decoder
     input logic                        cmd_en,     // Enable signal from Address Decoder
@@ -44,28 +45,32 @@ module cmd_buffer #(
 );
 
     // Internal command memory to store 64-bit commands
-    reg [CMD_WIDTH-1:0] cmd_mem [0:CMD_DEPTH-1]; // Command memory array
+    reg [BUFFER_WIDTH-1:0] cmd_mem [0:BUFFER_DEPTH-1]; // Command memory array
 
     // Always block: Handles reset, command storage, debugging, and FSM read
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             // Reset logic: Clear command memory and reset flags
-            slv_i_ready <= 1'b1; // Indicate buffer is ready for new transactions
-            for (int i = 0; i < CMD_DEPTH; i = i + 1) begin
-                cmd_mem[i] <= {CMD_WIDTH{1'b0}}; // Initialize all commands to 0
+            slv_i_ready <= 1'b1;                       // Indicate buffer is ready for new transactions			
+            slv_i_rd_valid <= 1'b0;
+			slv_i_rd_data <= {DATA_WIDTH{1'b0}};
+            for (int i = 0; i < BUFFER_DEPTH; i = i + 1) begin
+                cmd_mem[i] <= {BUFFER_WIDTH{1'b0}};       // Initialize all commands to 0
             end
         end else begin
             // AHB Write Transaction: Store command in memory
             if (cmd_en && slv_o_valid && slv_o_rd0_wr1) begin
-                cmd_mem[trans_addr] <= slv_o_wr_data; // Store 32-bit data in memory
-                slv_i_ready <= 1'b1; // Indicate buffer is ready for new transactions
+                cmd_mem[trans_addr] <= slv_o_wr_data;  // Store 32-bit data in memory
+                slv_i_ready <= 1'b1;                   // Indicate buffer is ready for new transactions
             end 
             // AHB Read Transaction: Debugging logic
-	    else if (cmd_en && slv_o_valid && !slv_o_rd0_wr1) begin
-                slv_i_rd_data <= cmd_mem[trans_addr][31:0]; // Read 32-bit data from memory
-                slv_i_rd_valid <= 1'b1; // Indicate read data is valid
-				slv_i_ready <= 1'b1; // Indicate buffer is ready for new transactions
+            else if (cmd_en && slv_o_valid && !slv_o_rd0_wr1) begin
+                slv_i_rd_data <= cmd_mem[trans_addr]; // Read 32-bit data from memory
+                slv_i_rd_valid <= 1'b1;               // Indicate read data is valid
+				slv_i_ready <= 1'b1;                  // Indicate buffer is ready for new transactions
             end else begin
+			    // if slave not valid or cmd not enabled 
+				// don't change content of cmd buffer 
                 // Default: Clear read-related signals
                 slv_i_rd_data <= {DATA_WIDTH{1'b0}};
                 slv_i_rd_valid <= 1'b0;
@@ -74,7 +79,7 @@ module cmd_buffer #(
 
             // FSM Read Transaction: Provide stored command to FSM
             if (cmd_rd_en && (!cmd_en || (cmd_en && !slv_o_rd0_wr1))) begin
-                cmd_out <= {cmd_mem[cmd_addr + 32'h4][31:2], cmd_mem[cmd_addr], cmd_mem[cmd_addr + 32'h4][1:0]}; // Send 64-bit command
+                cmd_out <= {cmd_mem[cmd_addr + 8'h1][1:0] ,cmd_mem[cmd_addr + 8'h1][31:2] ,cmd_mem[cmd_addr]}; // Send 64-bit command
                 cmd_rd_valid <= 1'b1; // Indicate valid read operation
             end else begin
                 // Default: Clear FSM read-related signals
