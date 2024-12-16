@@ -32,6 +32,7 @@ module source_controller #(parameter ADDR_WIDTH = 32,
 	// fsm 
 	parameter 	normal = 2'b00,
 				sleep = 2'b01,
+				read = 2'b10,
 				idle = 2'b11;
 				
 	reg [1:0] current_state, next_state;
@@ -52,10 +53,21 @@ module source_controller #(parameter ADDR_WIDTH = 32,
 				if(i_src_sleep_req || sink_sleep_status) begin 
 					next_state = sleep;
 				end 
+				else if(!rd0_wr1)begin 
+					next_state = read;
+				end 
 				else begin 
 					next_state = normal;
 				end 
 			end
+			
+			read : begin 
+				if(rd_valid) begin 
+					next_state = normal;
+				end else begin 
+					next_state = read;
+				end 
+			end 
 			
 			sleep : begin
 				if (req_fifo_empty && rsp_fifo_empty) begin 
@@ -86,12 +98,10 @@ module source_controller #(parameter ADDR_WIDTH = 32,
 		o_packet = 0;
 		rd_data = 0;
 		rd_valid = 0;
-		ready = 1;
 		reset_flag = 1;
 		packet = {rd0_wr1, valid, addr, wr_data};
 		case(current_state) 
 			normal : begin
-				rsp_fifo_rd_en = (rsp_fifo_empty)? 0 : 1;
 				if(valid) begin
 					req_fifo_wr_en = 1;
 				end else begin
@@ -99,15 +109,31 @@ module source_controller #(parameter ADDR_WIDTH = 32,
 				end
 				o_packet = packet;
  				ready = (req_fifo_full)? 0 : 1;
-				
+				rsp_fifo_rd_en = (rsp_fifo_empty)? 0 : 1;
 				if(rsp_fifo_rd_en) begin 
 					rd_data = i_read_packet[DATA_WIDTH-1:0];
 					rd_valid = i_read_packet[DATA_WIDTH];
 				end else begin 
 					rd_data = 0;
 					rd_valid = 0;
-				end 
+				end
+					
 			end
+			
+			read : begin 
+				req_fifo_wr_en = 0;
+				ready = 0;
+				rsp_fifo_rd_en = (rsp_fifo_empty)? 0 : 1;
+				if(rsp_fifo_rd_en) begin 
+					rd_data = i_read_packet[DATA_WIDTH-1:0];
+					rd_valid = i_read_packet[DATA_WIDTH];
+					ready = 1;
+				end else begin 
+					rd_data = 0;
+					rd_valid = 0;
+					ready = 0;
+				end
+			end 
 			
 			sleep : begin
 				rsp_fifo_rd_en = rd_valid;

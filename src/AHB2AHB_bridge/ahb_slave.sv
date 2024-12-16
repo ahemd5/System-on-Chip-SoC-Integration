@@ -33,7 +33,7 @@ module ahb_slave #(
     } state_t;
 
     state_t current_state, next_state;
-    reg active_phase;
+    reg active_phase,valid_buffer;
     reg [ADDR_WIDTH-1:0] addr_buffer,addr_buffer_comb;
     reg                  write_buffer,write_buffer_comb;
 
@@ -106,7 +106,7 @@ module ahb_slave #(
             end
 			
             NONSEQ: begin                  
-                if (i_hselx && write_buffer && active_phase && i_hready && i_ready) begin            
+                if (i_hselx && write_buffer && i_hready && i_ready) begin            
                     o_wr_data = i_hwdata;
                     o_rd0_wr1 = write_buffer;
                     o_addr    = addr_buffer;
@@ -117,7 +117,7 @@ module ahb_slave #(
                     o_valid      = 1'b1;
                     active_phase = 1'b1; 
 					o_hresp 	 = 1'b0;						
-                end else if (i_hselx && write_buffer && active_phase && (!i_hready || !i_ready)) begin 
+                end else if (i_hselx && write_buffer && (!i_hready || !i_ready)) begin 
 				    o_wr_data = 32'b0;
                     o_rd0_wr1 = write_buffer;
                     o_addr    = addr_buffer;
@@ -125,9 +125,9 @@ module ahb_slave #(
                     write_buffer_comb = write_buffer;
                     addr_buffer_comb  = addr_buffer;
                     o_hreadyout = 1'b0;
-                    o_valid     = 1'b0;
+                    o_valid     = 1'b1;
 					active_phase = 1'b1;
-                end else if (i_hselx && !write_buffer && active_phase && i_rd_valid && i_hready && i_ready) begin               
+                end else if (i_hselx && !write_buffer && i_rd_valid && i_hready && i_ready) begin               
                     o_wr_data = 'b0;
 					o_rd0_wr1 = write_buffer;
                     o_addr    = addr_buffer;					
@@ -138,15 +138,25 @@ module ahb_slave #(
                     o_valid = 1'b1; 
 					active_phase = 1'b1;
 					o_hresp = 0;
-                end else if (i_hselx && !write_buffer && active_phase && (!i_rd_valid || !i_hready || !i_ready)) begin
+                end else if (i_hselx && !write_buffer && active_phase && !i_ready) begin
                     o_wr_data = 'b0;
 					o_rd0_wr1 = write_buffer;
                     o_addr    = addr_buffer;	
 					o_hrdata = 'b0;
                     write_buffer_comb = write_buffer;
                     addr_buffer_comb  = addr_buffer;
-                    o_hreadyout = 1'b0;
-                    o_valid     = 1'b0;
+					o_valid     = 1'b0;
+                    o_hreadyout = 1'b0;        
+					active_phase = 1'b1;
+                 end else if (i_hselx && !write_buffer && active_phase && !i_rd_valid ) begin
+                    o_wr_data = 'b0;
+					o_rd0_wr1 = write_buffer;
+                    o_addr    = addr_buffer;	
+					o_hrdata = 'b0;
+                    write_buffer_comb = write_buffer;
+                    addr_buffer_comb  = addr_buffer;
+					o_valid     = 1'b1;
+                    o_hreadyout = 1'b1;        
 					active_phase = 1'b1;
                 end else begin
                     if (i_hselx && i_htrans) begin									
