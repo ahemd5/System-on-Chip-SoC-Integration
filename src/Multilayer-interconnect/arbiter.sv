@@ -1,35 +1,43 @@
-module arbiter #(
-    parameter NUM_MASTERS = 2  // Number of masters requesting access
-)(
-    input  wire	i_clk,          					// System clock
-    input  wire	i_reset_n,      					// Active-low reset
-    input  wire	i_req		[NUM_MASTERS-1:0],      // Request signals from decoders (o_hsel)
-    input  wire i_hreadyout,  						// Ready signal from the slave
-    output reg  o_grant		[NUM_MASTERS-1:0],     	// Grant signal to the selected master
-    output reg  o_hready	[NUM_MASTERS-1:0]      	// Ready signal for the selected master
-);
+module arbiter #(parameter NUM_MASTERS = 2, NUM_SLAVES = 2)(
+    input  wire    i_clk,
+    input  wire    [NUM_SLAVES-1:0] i_req [NUM_MASTERS-1:0],   // Request signals from decoders (o_hsel)
+    input  wire i_hreadyout,                                  // Ready signal from the slave
+    input  wire [31:0]	s,
+    output reg  [NUM_MASTERS-1:0] o_grant ,                     // Grant signal to the selected master
+    output reg  [NUM_MASTERS-1:0] o_mhready,                      // Ready signal for the selected master
+    output reg  o_shready,
+	output reg  o_hselx
+	);
 
-    integer i;
+    integer m;
 
-    always @(posedge i_clk or negedge i_reset_n) begin
-        if (!i_reset_n) begin
-				o_grant[i] <= 'b0;
-				o_hready[i] <= 'b0; // Indicate the selected master is ready
-        end 
-		else if(i_hreadyout) begin
-			for (i = 0; i < NUM_MASTERS; i = i + 1) begin
-                // Fixed priority: check requests in order of master index
-                    if (i_req[i]) begin
-						o_grant[i] <= 1;
-                        o_hready[i] <= 1; // Indicate the selected master is ready
-                    break; 	// Exit loop once a master is granted
-					end
-			end	
-		end
+    always @(posedge i_clk) begin
+        if (i_hreadyout) begin
+            for (m = 0; m < NUM_MASTERS; m = m + 1) begin
+                if (i_req[m][s]) begin
+                    o_grant[m] <= 1;              // Grant master m
+                    o_mhready[m] <= 1;            // Indicate slave s is ready
+                    o_shready <= 1;
+					o_hselx <= 1;
+					break;                         // Break first loops
+                end
+                else begin 
+                    o_grant[m] <= 0;              // Grant master m
+                    o_mhready[m] <= 0;            // Indicate slave s is ready
+					o_shready <= 0;
+					o_hselx <= 0;
+				end 
+            end
+        end
+         
 		else begin
-				o_grant[i] <= 'b0;
-				o_hready[i] <= 'b0; // Indicate the selected master is ready  
-		end
+            for (m = 0; m < NUM_MASTERS; m = m + 1) begin
+                o_grant[m] <= 0;              // Grant master m
+                o_mhready[m] <= 0;            // Indicate slave s is ready
+				o_shready <= 0;
+				o_hselx <= 0;
+			end
+        end
     end
 
 endmodule

@@ -28,29 +28,34 @@ module interconnect_top_module #(
 	output wire 					o_hselx		[NUM_SLAVES],
 	//outputs to master
 	output reg	[DATA_WIDTH-1:0]	o_hrdata [NUM_MASTERS]	,       	//hrdata to master 							
-	output reg						o_hresp	 [NUM_MASTERS]
+	output reg						o_hresp	 [NUM_MASTERS]  ,
+	output reg  [NUM_MASTERS-1:0] 	o_mhready [NUM_SLAVES]
 );
  
-	wire 				   arbiter_req	[NUM_MASTERS-1:0];
-    wire 				   arbiter_grant  [NUM_MASTERS-1:0][NUM_SLAVES];
-    wire 				   arbiter_hready [NUM_MASTERS-1:0][NUM_SLAVES];
+	wire [NUM_SLAVES-1:0]  arbiter_req	[NUM_MASTERS-1:0] ;
+    wire [NUM_MASTERS-1:0] arbiter_grant  [NUM_SLAVES];
+    
 	
-    wire 				   decoder_hsel  [NUM_SLAVES-1:0] [NUM_MASTERS];
-	wire  				   i_hselx		  [NUM_MASTERS-1:0];
+    wire [NUM_SLAVES-1:0]  decoder_hsel    [NUM_MASTERS];
 	
 	
 	// Decoder instantiations
-    genvar i;
+    genvar i,k;
     generate
         for (i = 0; i < NUM_MASTERS; i = i + 1) begin 
+			  
+                assign arbiter_req[i] = decoder_hsel[i]; // Request from master to each slave
+
             decoder #(.NUM_SLAVES(NUM_SLAVES),.START_ADDR(START_ADDR),.END_ADDR(END_ADDR)) decoder_Ui(
 			.i_haddr(i_haddr[i]),
 			.o_hsel(decoder_hsel[i])
+			
             ); 
         end
+		
     endgenerate
 	
-	genvar k;
+	
 	// masters mux instantiations
     generate
         for (i = 0; i < NUM_MASTERS; i = i + 1) begin 
@@ -64,17 +69,22 @@ module interconnect_top_module #(
         end
     endgenerate
 	
-	// Arbiter instantiations for each slave
+	
+    // Arbiter instantiations for each slave
     genvar j;
     generate
-        for (j = 0; j < NUM_SLAVES; j = j + 1) begin 
-            arbiter #(.NUM_MASTERS(NUM_MASTERS)) arbiter_Uj (
-			.i_clk(i_clk),
-			.i_reset_n(i_reset_n),
-			.i_req(decoder_hsel[j]),
-			.i_hreadyout(i_hreadyout[j]),
-			.o_grant(arbiter_grant[j]),
-			.o_hready(arbiter_hready[j])
+        for (j = 0; j < NUM_SLAVES; j = j + 1) begin : arbiters
+            arbiter #(.NUM_MASTERS(NUM_MASTERS),.NUM_SLAVES(NUM_SLAVES)) 
+            arbiter_Uj (
+            .i_clk(i_clk),
+            //.i_reset_n(i_reset_n),
+            .s(j),
+            .i_req(arbiter_req),
+            .i_hreadyout(i_hreadyout[j]),
+            .o_grant(arbiter_grant[j]),
+            .o_mhready(o_mhready[j]),
+			.o_shready(o_hready[j]),
+			.o_hselx(o_hselx[j])
             );
         end
     endgenerate
@@ -85,19 +95,16 @@ module interconnect_top_module #(
     generate
         for (j = 0; j < NUM_SLAVES; j = j + 1) begin 
             slave_mux #(.NUM_MASTERS(NUM_MASTERS),.DATA_WIDTH(DATA_WIDTH)) slave_mux_Uj (
-                .i_hready(arbiter_hready[j]),
+			
                 .i_htrans(i_htrans),
                 .i_hwrite(i_hwrite),
                 .i_haddr(i_haddr),
                 .i_hwdata(i_hwdata),
-                .i_hselx(decoder_hsel[j]),
                 .bus_grant(arbiter_grant[j]),
-                .o_hready(o_hready[j]),
                 .o_htrans(o_htrans[j]),
                 .o_hwrite(o_hwrite[j]),
                 .o_haddr(o_haddr[j]),
-                .o_hwdata(o_hwdata[j]),
-                .o_hselx(o_hselx[j])
+                .o_hwdata(o_hwdata[j])
             );
         end
     endgenerate

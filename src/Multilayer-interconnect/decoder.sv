@@ -5,7 +5,7 @@ module decoder #(
 	parameter	[ADDR_WIDTH-1:0]	END_ADDR	[0:NUM_SLAVES-1]
 )(
 	input	wire	[ADDR_WIDTH-1:0] i_haddr,				//address from the master
-	output	reg		o_hsel 		[NUM_SLAVES-1:0]			//decoded_slave(select for master mux)
+	output	reg		[NUM_SLAVES-1:0] o_hsel 					//decoded_slave(select for master mux)
 );
 
 integer i;
