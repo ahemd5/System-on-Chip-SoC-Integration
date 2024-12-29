@@ -85,7 +85,7 @@ reg readyflag ;
         o_rd0_wr1    = o_rd0_wr1;
         o_wr_data    = o_wr_data;
         o_addr       =  o_addr ;		
-         o_valid= 0;			
+         o_valid= o_valid;			
 		    addr_buffer_comb  =  addr_buffer_comb;
         write_buffer_comb =  write_buffer_comb; 
         flagcomb=flagcomb;    
@@ -163,14 +163,24 @@ reg readyflag ;
       
       end 
       //
-    else if (!i_htrans) begin 
-         o_rd0_wr1    = 1'b0;
-                     flagcomb=0;
-                    o_wr_data    = 'b0;
-                    o_addr       = 'b0;					
-                     o_valid=0;
-		                addr_buffer_comb  = 'b0;
-                    write_buffer_comb = 1'b0;
+    else if (!i_htrans ) begin 
+      if (write_buffer) 
+        begin 
+           o_valid=1;
+             o_wr_data = i_hwdata; 
+                o_rd0_wr1 = write_buffer;
+                o_addr    = addr_buffer; 
+        end 
+      else begin 
+          o_rd0_wr1    = 1'b0;
+          flagcomb=0;
+          o_wr_data    = 'b0;
+          o_addr       = 'b0;					
+          o_valid=0;
+		      addr_buffer_comb  = 'b0;
+          write_buffer_comb = 1'b0;
+      end
+       
       
     end 
     //
