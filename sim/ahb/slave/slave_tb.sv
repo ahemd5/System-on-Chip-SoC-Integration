@@ -57,11 +57,10 @@ initial
 		address(32'hC,1);	
 		read(32'hbbbb_bbbb);
 		join 
+		fork
 		write(32'hcccc_cccc);
-		@ (posedge i_clk_ahb_tb);
-		#1;
-		  i_htrans_tb = 0;
-		i_hselx_tb = 0;
+		idletransaction();
+	  join
 	//second transaction 
 		address(32'h38,1);	
 		fork 
@@ -76,16 +75,35 @@ initial
 		fork
 		address(32'h34,1);	
 		write(32'h30);
-		join 
+		join
+		fork
 		write(32'h34);
-		@ (posedge i_clk_ahb_tb);
-		#1;
-		  i_htrans_tb = 0;
-	   	i_hselx_tb = 0;
-	
+	idletransaction();
+	  join
+	   	#30;
+	   	// third transaction
+	   		
+		address(32'h20,0);	
+		fork 
+		address(32'h24,0);	
+		read(32'h20);
+		join		
+		fork
+		address(32'h28,0);	
+		read(32'h24);
+		join 
+		fork
+		address(32'h2C,0);	
+		read(32'h28);
+		notready();
+		join 
+		fork
+		read(32'h2C);
+		idletransaction();
+	  join 
 	
 		
-		#100;
+		#40;
 		$stop;
 	end
 
@@ -185,6 +203,15 @@ task read;
 		else 
 			$display( "Failed Case %0d : expected %h got %h", i, data, o_hrdata_tb);
 		i = i + 1; 
+  end 
+endtask
+task idletransaction;
+  begin 
+    	@ (posedge i_clk_ahb_tb);
+		#1;
+		  i_htrans_tb = 0;
+	   	i_hselx_tb = 0;
+	
   end 
 endtask
   
