@@ -6,7 +6,17 @@ module Top_Module (
  
    
     output wire o_spi_flash_irq,      // IRQ output
-   
+    output wire o_spi_flash_csn,      // Chip select
+    output wire o_spi_flash_so0,      // SPI output line 0
+    output wire o_spi_flash_so1,      // SPI output line 1
+    output wire o_spi_flash_so2,      // SPI output line 2
+    output wire o_spi_flash_so3,      // SPI output line 3
+    output wire o_spi_flash_si_io0_oen,
+    output wire o_spi_flash_si_io1_oen,
+    output wire o_spi_flash_si_io2_oen,
+    output wire o_spi_flash_si_io3_oen,
+   input wire  i_spi_flash_si0, i_spi_flash_si1, i_spi_flash_si2 ,  i_spi_flash_si3,
+   output wire o_spi_flash_clk_en,
 // ahb master signals
     input wire i_ready,               
     output wire [31:0] o_addr,
@@ -23,25 +33,6 @@ module Top_Module (
         output wire  o_ready
     
 ); 
-wire DIO;
-wire DO;
-wire WPn;
-wire HOLDn;
-wire o_spi_flash_csn; 
-wire  spiclock; 
-wire o_spi_flash_so0;   
-  wire o_spi_flash_so1;     
-  wire o_spi_flash_so2;     
-  wire o_spi_flash_so3;     
-  wire o_spi_flash_si_io0_oen;
-  wire  o_spi_flash_si_io1_oen;
-   wire o_spi_flash_si_io2_oen;
-  wire  o_spi_flash_si_io3_oen;
-  wire i_spi_flash_si0;
-   wire i_spi_flash_si1;
-   wire  i_spi_flash_si2 ; 
-   wire   i_spi_flash_si3;
-
 // internal registers 
     wire [31:0] reg_0C ;      // DMA address
     wire [3:0] reg_00;          // Command count
@@ -117,7 +108,7 @@ wire o_spi_flash_so0;
         .i_spi_flash_si1(i_spi_flash_si1),    
         .i_spi_flash_si2(i_spi_flash_si2),
         .i_spi_flash_si3(i_spi_flash_si3),
-        .spiclock(spiclock),
+        .o_spi_flash_clk_en(o_spi_flash_clk_en),
         .ahbclk(ahbclk),
         .ahbrst(ahbrst),
         .i_ready(i_ready),
@@ -149,37 +140,7 @@ wire o_spi_flash_so0;
         .reg_18(reg_18),
         .reg_20(reg_20)
     );
- 
- W25Q16FW u_w25q16fw (
-    .CSn(o_spi_flash_csn),         // Chip Select (active low)
-    .CLK(spiclock),         // SPI Clock
-    .DIO(DIO),        
-    .DO(DO),           
-    .WPn(WPn),         // Write Protect (active low)
-    .HOLDn(HOLDn)      // Hold (active low)
-);
 
-interface_with_flash u_interface_with_flash (
-    .o_spi_flash_so0(o_spi_flash_so0),       // Output line 0
-    .o_spi_flash_so1(o_spi_flash_so1),       // Output line 1
-    .o_spi_flash_so2(o_spi_flash_so2),       // Output line 2
-    .o_spi_flash_so3(o_spi_flash_so3),       // Output line 3
-
-    .o_spi_flash_si_io0_oen(o_spi_flash_si_io0_oen), // Output enable for SPI IO0
-    .o_spi_flash_si_io1_oen(o_spi_flash_si_io1_oen), // Output enable for SPI IO1
-    .o_spi_flash_si_io2_oen(o_spi_flash_si_io2_oen), // Output enable for SPI IO2
-    .o_spi_flash_si_io3_oen(o_spi_flash_si_io3_oen), // Output enable for SPI IO3
-
-    .i_spi_flash_si0(i_spi_flash_si0),       // SPI input line 0
-    .i_spi_flash_si1(i_spi_flash_si1),       // SPI input line 1
-    .i_spi_flash_si2(i_spi_flash_si2),       // SPI input line 2
-    .i_spi_flash_si3(i_spi_flash_si3),       // SPI input line 3
-
-    .DIO(DIO),                             
-    .DO(DO),                          
-    .WPn(WPn),                               
-    .HOLDn(HOLDn)                          
-);
 
 
   
