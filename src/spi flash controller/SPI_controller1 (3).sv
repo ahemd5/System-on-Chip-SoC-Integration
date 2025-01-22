@@ -13,7 +13,7 @@ module SPI_FSM (
 
     output reg o_spi_flash_si_io0_oen,o_spi_flash_si_io1_oen,o_spi_flash_si_io2_oen,o_spi_flash_si_io3_oen, //output enable 
     output reg o_spi_flash_csn,       // Chip select
-    output reg   spiclock,
+    output reg   o_spi_flash_clk_en,
   
     
    
@@ -66,6 +66,7 @@ module SPI_FSM (
 // Address counter for ahb interfacing
     reg [31:0] address;
     reg [23:0] bytecounter ;
+    wire fflag;
 
     // FSM State Encoding
     typedef enum logic [2:0] {
@@ -78,11 +79,23 @@ module SPI_FSM (
     } state_t;
 
     state_t current_state, next_state;
+      // State Encoding
+    typedef enum logic [1:0] {
+        IDLE_AHB,
+        READ_FIFO,
+        checkempty,
+        WAIT_FIFO
+      
+    } state_tt;
+    
+    state_tt ahb_state, ahb_nextstate;
     assign  o_spi_flash_irq= reg_24;
-    assign spiclock= (current_state==SEND_CMD || current_state== RECEIVE_DATA)?  1 : 0;
+    assign o_spi_flash_clk_en= (current_state==SEND_CMD || current_state== RECEIVE_DATA)?  1 : 0;
     assign   fifo_write_enable =(!fifo_full && ( read_count % 4==0) && read_count != 0 &&(bit_counter2==0) )? 1:0;
     assign   wdata=(!fifo_full &&( read_count % 4==0) && read_count != 0 &&(bit_counter2==0) )? rx_data_reg: 32'bz;
-    assign   reg_24 =(empty && ((bytecounter+4)==reg_08)) ? 1:0;   
+    assign fflag = ( reg_08==4 )? ((ahb_state==checkempty ) ? 1 : 0):1;
+    
+    assign   reg_24 =(fflag  && empty && ((bytecounter+4)==reg_08)) ? 1:0;   
     
     
     module RisingEdgeDetector (
@@ -356,16 +369,7 @@ end
 //AHB INTERFACING
 
 
-    // State Encoding
-    typedef enum logic [1:0] {
-        IDLE_AHB,
-        READ_FIFO,
-        checkempty,
-        WAIT_FIFO
-      
-    } state_tt;
-    
-    state_tt ahb_state, ahb_nextstate;
+  
 
     integer i;
     
@@ -388,6 +392,7 @@ end
         o_valid =  0;
         o_rd0_wr1 = 1;
         
+        
         o_addr = address;
         o_wr_data = rdata;
      address=address;
@@ -395,6 +400,7 @@ end
 
         case (ahb_state)
             IDLE_AHB: begin
+            
                  address = reg_0C;
                 bytecounter = 0;
                 if (!empty  )  begin 
@@ -404,6 +410,7 @@ end
             end
 
             READ_FIFO: begin
+              
   
                    
                     o_valid = 1;
@@ -427,6 +434,7 @@ end
                       ahb_nextstate = READ_FIFO;
                        address = address + 4; // Increment by 4 for each transaction
                       bytecounter = bytecounter+4; 
+                    
                  end
                   if (empty && ((bytecounter+4)==reg_08) ) begin
                   ahb_nextstate = IDLE_AHB;
