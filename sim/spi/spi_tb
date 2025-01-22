@@ -1,0 +1,700 @@
+ module tb_spi;
+reg [7:0] memory [0:4095];
+reg [7:0] cmd_check_memory[0:11];
+parameter spiperiod= 20;
+parameter ahbperiod=10;
+// Declare testbench signals
+reg i_clk_spi_flash;
+reg i_rstn_spi_flash;
+reg ahbclk;
+reg ahbrst;
+reg i_ready;
+reg i_spi_flash_si0, i_spi_flash_si1, i_spi_flash_si2, i_spi_flash_si3;
+reg [31:0] i_address;
+reg i_rd0_wr1;
+reg [31:0] i_wr_data;
+reg I_valid;
+
+
+
+wire o_spi_flash_irq;
+wire o_spi_flash_csn;
+wire o_spi_flash_so0, o_spi_flash_so1, o_spi_flash_so2, o_spi_flash_so3;
+wire o_spi_flash_si_io0_oen, o_spi_flash_si_io1_oen, o_spi_flash_si_io2_oen, o_spi_flash_si_io3_oen;
+wire o_spi_flash_clk_en;
+wire [31:0] o_addr;
+wire [31:0] o_wr_data;
+wire o_rd0_wr1;
+wire o_valid;
+wire  [31:0] o_rd_data;
+wire o_rd_valid;
+wire o_ready;
+
+///
+reg [3:0] cmd_number;
+reg [23:0] write_data_number ;
+reg [23:0] read_data_number;
+reg [31:0] start_address_of_dma ;
+reg [31:0]  cmd1_data;
+reg [31:0]  cmd2_data;
+reg [31:0]  cmd3_data;
+reg [25:0] mode_of_muxing;
+reg [31:0] start_address_of_flash;
+
+
+
+    
+    
+    
+     
+
+// Instantiate the Top_Module
+Top_Module uut (
+    .i_clk_spi_flash(i_clk_spi_flash),
+    .i_rstn_spi_flash(i_rstn_spi_flash),
+    .ahbclk(ahbclk),
+    .ahbrst(ahbrst),
+    
+    .i_spi_flash_si0(i_spi_flash_si0),
+    .i_spi_flash_si1(i_spi_flash_si1),
+    .i_spi_flash_si2(i_spi_flash_si2),
+    .i_spi_flash_si3(i_spi_flash_si3),
+    .o_spi_flash_irq(o_spi_flash_irq),
+    .o_spi_flash_csn(o_spi_flash_csn),
+    .o_spi_flash_so0(o_spi_flash_so0),
+    .o_spi_flash_so1(o_spi_flash_so1),
+    .o_spi_flash_so2(o_spi_flash_so2),
+    .o_spi_flash_so3(o_spi_flash_so3),
+    .o_spi_flash_si_io0_oen(o_spi_flash_si_io0_oen),
+    .o_spi_flash_si_io1_oen(o_spi_flash_si_io1_oen),
+    .o_spi_flash_si_io2_oen(o_spi_flash_si_io2_oen),
+    .o_spi_flash_si_io3_oen(o_spi_flash_si_io3_oen),
+    .o_spi_flash_clk_en(o_spi_flash_clk_en),
+    //master
+    .i_ready(i_ready),
+    .o_addr(o_addr),
+    .o_wr_data(o_wr_data),
+    .o_rd0_wr1(o_rd0_wr1),
+    .o_valid(o_valid),
+    // slave
+    .i_address(i_address),
+    .i_rd0_wr1(i_rd0_wr1),
+    .i_wr_data(i_wr_data),
+    .I_valid(I_valid),
+    .o_rd_data(o_rd_data),
+    .o_rd_valid(o_rd_valid),
+    .o_ready(o_ready)
+);
+
+// Clock generation
+
+initial 
+begin
+forever  #(spiperiod/2)  i_clk_spi_flash = ~i_clk_spi_flash;
+end
+ initial 
+begin
+forever     #(ahbperiod/2)  ahbclk = ~ahbclk;  
+end 
+  
+
+// Initial block to drive signals and simulate a test
+initial begin
+  integer p;
+  for (p = 0; p < 4096; p = p + 1) begin
+    memory[p] = $random;  // Assign a random value to each memory location
+end
+
+  // defult values and reseting 
+        i_clk_spi_flash = 0;
+        
+        ahbclk = 0;
+        i_rstn_spi_flash = 0;
+        ahbrst = 0;
+        i_ready = 0;
+        i_spi_flash_si0 = 'bz;
+        i_spi_flash_si1 = 'bz;
+        i_spi_flash_si2 ='bz;
+        i_spi_flash_si3 = 'bz;
+        i_address = 32'b0;
+        i_rd0_wr1 = 0;
+        i_wr_data = 32'b0;
+        I_valid = 0;
+        #20 i_rstn_spi_flash = 1; 
+        ahbrst = 1;
+        i_ready = 1;
+        
+ // Testcase 1
+$display("testcase 1");
+cmd_number = 3;
+write_data_number = 0;
+read_data_number = 16;
+start_address_of_dma = 'h40;
+cmd1_data = 'hAEEFFB;
+cmd2_data = 0;
+cmd3_data = 0;
+mode_of_muxing = {2'b10, 24'b010100};
+start_address_of_flash = 'h8;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 2
+$display("testcase 2");
+cmd_number = 1;
+write_data_number = 0;
+read_data_number = 8;
+start_address_of_dma = 'h80;
+cmd1_data = 'hAB;
+cmd2_data = 0;
+cmd3_data = 0;
+mode_of_muxing = {2'b01, 24'b101000};
+start_address_of_flash = 'hC;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+
+
+$display("testcase 3");
+cmd_number = 8;
+write_data_number = 0;
+read_data_number = 28;
+start_address_of_dma = 'h60;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hAEFEEFFB;
+cmd3_data = 0;
+mode_of_muxing = {2'b10, 24'b001010};
+start_address_of_flash = 'h18;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+
+$display("testcase 4");
+cmd_number = 5;
+write_data_number = 0;
+read_data_number = 12;
+start_address_of_dma = 'h24;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hAB;
+cmd3_data = 0;
+mode_of_muxing = {2'b01, 24'b000101};
+start_address_of_flash = 'h20;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+
+$display("testcase 5");
+cmd_number = 2;
+write_data_number = 0;
+read_data_number = 4;
+start_address_of_dma = 'h28;
+cmd1_data = 'hAABB;
+cmd2_data = 0;
+cmd3_data = 0;
+mode_of_muxing = {2'b10, 24'b110000};
+start_address_of_flash = 'h30;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+
+$display("testcase 6");
+cmd_number = 12;
+write_data_number = 0;
+read_data_number = 48;
+start_address_of_dma = 'h2C;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hAEFEEFFB;
+cmd3_data = 'hAEEBFF;
+mode_of_muxing = {2'b01, 24'b101010};
+start_address_of_flash = 'h40;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+
+$display("testcase 7");
+cmd_number = 10;
+write_data_number = 0;
+read_data_number = 20;
+start_address_of_dma = 'h34;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hAEFEEFFB;
+cmd3_data = 'hABFF;
+mode_of_muxing = {2'b10, 24'b001001};
+start_address_of_flash = 'h50;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+
+$display("testcase 8");
+cmd_number = 7;
+write_data_number = 0;
+read_data_number = 40;
+start_address_of_dma = 'h38;
+cmd1_data = 'hABCDEEFF;
+cmd2_data = 'hFFAB;
+cmd3_data = 0;
+mode_of_muxing = {2'b01, 24'b100110};
+start_address_of_flash = 'h60;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+// Testcase 10
+$display("testcase 10");
+cmd_number = 8;
+write_data_number = 0;
+read_data_number = 32;
+start_address_of_dma = 'h40;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hAEFEEFFB;
+cmd3_data = 0;
+mode_of_muxing = {2'b10, 24'b001010}; // Valid bits, no "11"
+start_address_of_flash = 'h80;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 11
+$display("testcase 11");
+cmd_number = 4;
+write_data_number = 0;
+read_data_number = 12;
+start_address_of_dma = 'h44;
+cmd1_data = 'hCDEFFFAB;
+cmd2_data = 0;
+cmd3_data = 0;
+mode_of_muxing = {2'b01, 24'b100100};
+start_address_of_flash = 'h84;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 12
+$display("testcase 12");
+cmd_number = 10;
+write_data_number = 0;
+read_data_number = 16;
+start_address_of_dma = 'h48;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hAEFEEFFB;
+cmd3_data = 'hABFF;
+mode_of_muxing = {2'b10, 24'b000110};
+start_address_of_flash = 'h88;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 13
+$display("testcase 13");
+cmd_number = 3;
+write_data_number = 0;
+read_data_number = 8;
+start_address_of_dma = 'h4C;
+cmd1_data = 'hAEEFFB;
+cmd2_data = 0;
+cmd3_data = 0;
+mode_of_muxing = {2'b01, 24'b101000};
+start_address_of_flash = 'h8C;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 14
+$display("testcase 14");
+cmd_number = 6;
+write_data_number = 0;
+read_data_number = 40;
+start_address_of_dma = 'h50;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hEFAB;
+cmd3_data = 0;
+mode_of_muxing = {2'b10, 24'b0010010010}; 
+start_address_of_flash = 'h90;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 15
+$display("testcase 15");
+cmd_number = 1;
+write_data_number = 0;
+read_data_number = 4;
+start_address_of_dma = 'h54;
+cmd1_data = 'hAB;
+cmd2_data = 0;
+cmd3_data = 0;
+mode_of_muxing = {2'b01, 24'b100000}; 
+start_address_of_flash = 'h94;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 16
+$display("testcase 16");
+cmd_number = 12;
+write_data_number = 0;
+read_data_number = 24;
+start_address_of_dma = 'h58;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hAEFEEFFB;
+cmd3_data = 'hAEEBFF;
+mode_of_muxing = {2'b10, 24'b0010001001}; 
+start_address_of_flash = 'h98;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 17
+$display("testcase 17");
+cmd_number = 2;
+write_data_number = 0;
+read_data_number = 20;
+start_address_of_dma = 'h5C;
+cmd1_data = 'hAABB;
+cmd2_data = 0;
+cmd3_data = 0;
+mode_of_muxing = {2'b01, 24'b0100}; 
+start_address_of_flash = 'h9C;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+// Testcase 18
+$display("testcase 18");
+cmd_number = 12;
+write_data_number = 0;
+read_data_number = 36;
+start_address_of_dma = 'h60;
+cmd1_data = 'hABCDDEFF;
+cmd2_data = 'hABEEFCBA;
+cmd3_data = 'hABCDEFAB;
+mode_of_muxing = {2'b10, 24'b000101001000000}; 
+start_address_of_flash = 'hA0;
+
+start_transaction(cmd_number, write_data_number, read_data_number, start_address_of_dma, cmd1_data, cmd2_data, cmd3_data, mode_of_muxing);
+fork
+    read_fromspiflash(start_address_of_flash, read_data_number, mode_of_muxing[25:24]);
+    check(start_address_of_flash, read_data_number, start_address_of_dma);
+    wait_interrupt;
+join
+
+        
+        
+
+
+    // End simulation
+    $stop;
+end
+//
+  task read_fromspiflash(input [31:0] startaddress, input [23:0] num_bytes, input [1:0] mux_mode);
+        integer m;
+        
+        integer i;
+
+        reg [31:0] address;
+        begin
+          
+         address= startaddress;
+            for (m = 0; m < num_bytes; m = m + 1) begin
+              case (mux_mode)
+                2'b00 : begin 
+                 
+                     for (i = 7; i >= 0; i = i - 1) begin 
+                          @(negedge  i_clk_spi_flash );
+                        
+                       i_spi_flash_si0 = memory [address][i];
+                      
+                    
+                     
+                    
+                     end     
+                end
+                2'b01 : begin 
+                     for (i = 7; i >= 0; i = i - 2) begin
+                    @(negedge  i_clk_spi_flash );
+                    i_spi_flash_si1 = memory [address][i];
+                    i_spi_flash_si0 = memory [address][i-1];
+        
+                     end 
+                end
+                2'b10 : begin 
+                       
+             for (i = 7; i >= 0; i = i - 4) begin
+              @(negedge  i_clk_spi_flash );
+              i_spi_flash_si3 = memory [address][i];
+             i_spi_flash_si2 = memory [address][i-1];
+             i_spi_flash_si1 = memory [address][i-2];
+             i_spi_flash_si0 = memory [address][i-3];
+        
+             end
+                end
+                
+              endcase // end of one byte transaction
+              
+             address=address+ 32'b1; 
+            end//  end for loop of all needed bytes
+            @(negedge  i_clk_spi_flash );
+              i_spi_flash_si0 = 1'bz;
+             i_spi_flash_si1 = 1'bz;
+              i_spi_flash_si2 = 1'bz;
+            i_spi_flash_si3 = 1'bz;
+        
+        end //end
+    endtask
+    //
+    
+   
+//
+
+task check (input [31:0] flash_start_address, input [23:0] num_bytes, input [31:0] dma_start_address );
+
+ reg    [31:0]   expected_out_data; 
+ 
+ reg  [31:0] addressflash;
+ reg [31:0] addressdma;
+ 
+ integer   k ;
+ 
+
+ begin
+   addressdma=dma_start_address ;
+  addressflash= flash_start_address;
+
+	for(k=0; k<(num_bytes/4); k=k+1)
+	begin
+	  expected_out_data= {memory [addressflash] ,memory [addressflash+1] , memory [addressflash+2] , memory [addressflash+3]};
+	  // this for generating i ready to be equal zero for number of cycles then asserted too one 
+	i_ready =0;
+	@(posedge o_valid)
+	repeat ($urandom_range(1,10)) begin @(negedge ahbclk); end 
+		i_ready =1;
+	
+		
+	//
+
+    
+if(o_wr_data == expected_out_data) 
+		begin
+			$display("data transfer word %d is succeeded because expected word is  %h  output wrdata is %h ",k,expected_out_data,o_wr_data);
+		end
+	else
+		begin
+			$display("data transfer word %d is failed because expected word is  %h     output wrdata is %h ",k,expected_out_data,o_wr_data);
+		end 
+		  
+		  if(o_addr==  addressdma) 
+		begin
+			$display("address transfer word %d is succeeded because expected dma address  is %h  outputaddress is %h ",k ,addressdma,o_addr);
+		end
+	else
+		begin
+			$display("address transfer word %d is failed because expected dma address  is %h  outputaddress is %h ",k ,addressdma,o_addr);
+		end 
+		  @(negedge ahbclk);
+
+	addressflash=addressflash +4;
+	addressdma=addressdma+4;
+
+ end //for loop
+ end
+endtask
+
+
+//  
+
+
+
+task wait_interrupt ;
+  begin 
+    wait (o_spi_flash_irq==1);
+   @(negedge ahbclk);
+    i_address= 'h24;  
+    i_rd0_wr1='b1;
+    i_wr_data=32'b0;
+    I_valid='b1; // oready from memory is always one so no constraint or wait for it ; 
+     @(negedge ahbclk);
+      I_valid='b0;
+     
+  end 
+endtask 
+task start_transaction (input [3:0] command_count , input [23:0] write_data_count, input [23:0] read_data_count,input [31:0] dma_start_address,
+input [31:0]  cmd_buffer1 , input [31:0]  cmd_buffer2 ,input [31:0] cmd_buffer3 , input [25:0] mux_mode);
+integer s;
+integer i;
+
+ integer n;
+
+reg [31:0] address;
+   begin
+     	$display("transaction of reading %d bytes from flash  \n using address_and_command_instruction  %h%h%h \n as command number is %d \n muxmode is %b  \n dma start address is %h",read_data_count,cmd_buffer3,cmd_buffer2,cmd_buffer1,command_count,mux_mode,dma_start_address);
+     address=0;
+   @(negedge ahbclk); 
+     i_address= 'h0;
+     i_rd0_wr1='b1;
+     I_valid='b1;
+     i_wr_data=command_count;
+      @(negedge ahbclk); 
+     i_address= i_address+ 4;
+     i_wr_data=write_data_count;
+      @(negedge ahbclk); 
+     i_address= i_address+ 4;
+     i_wr_data=read_data_count;
+       @(negedge ahbclk); 
+     i_address= i_address+ 4;
+     i_wr_data=dma_start_address;
+        @(negedge ahbclk); 
+     i_address= i_address+ 4;
+     i_wr_data=cmd_buffer1;
+        @(negedge ahbclk); 
+     i_address= i_address+ 4;
+     i_wr_data=cmd_buffer2;
+          @(negedge ahbclk); 
+     i_address= i_address+ 4;
+     i_wr_data=cmd_buffer3;
+          @(negedge ahbclk); 
+     i_address= i_address+ 4;
+     i_wr_data=mux_mode;
+          @(negedge ahbclk); 
+     i_address= i_address+ 4;
+     i_wr_data=0;
+          @(negedge ahbclk);
+          @(negedge ahbclk); 
+          @(negedge ahbclk); 
+          @(negedge ahbclk);  
+     i_wr_data=1 ; // i make start transaction equal zero then rise again to one to make spi controller detect that posedge 
+     @(negedge ahbclk); 
+      I_valid='b0;
+     
+  ///////
+  
+@(negedge o_spi_flash_csn);
+ @(negedge i_clk_spi_flash);
+
+  for (n = 0; n < 4096; n = n + 1) begin
+   cmd_check_memory[n] =0;  
+end
+
+             for (s = 0; s < command_count; s = s + 1) begin
+               case (mux_mode[1:0])
+                 2'b00: begin
+                      for (i = 7; i >= 0; i = i - 1) begin 
+                          @(negedge  i_clk_spi_flash );
+                        
+                       cmd_check_memory[address][i]=o_spi_flash_so0;
+ 
+                     end 
+                   
+                 
+                 end 
+                  2'b01: begin 
+                     for (i = 7; i >= 0; i = i - 2) begin
+                    @(negedge  i_clk_spi_flash );
+                    cmd_check_memory [address][i]=o_spi_flash_so1;
+                    cmd_check_memory [address][i-1]=o_spi_flash_so0;
+        
+                     end 
+                    
+                 end 
+                  2'b10: begin
+                          for (i = 7; i >= 0; i = i - 4) begin
+              @(negedge  i_clk_spi_flash );
+               cmd_check_memory [address][i]=o_spi_flash_so3;
+               cmd_check_memory[address][i-1]=o_spi_flash_so2;
+              cmd_check_memory[address][i-2]=o_spi_flash_so1;
+               cmd_check_memory [address][i-3]=o_spi_flash_so0;
+        
+                  end
+                
+                 end 
+                 
+               endcase //endcase one byte
+            mux_mode = mux_mode >> 2; 
+               address=address+ 32'b1; 
+            
+        end //end for loop
+                 if({cmd_buffer3,cmd_buffer2,cmd_buffer1}=={  cmd_check_memory[11] , cmd_check_memory [10] ,  cmd_check_memory [9] ,  cmd_check_memory [8],cmd_check_memory[7] , cmd_check_memory [6] ,  cmd_check_memory [5] ,  cmd_check_memory [4],cmd_check_memory[3] , cmd_check_memory [2] ,  cmd_check_memory [1] ,  cmd_check_memory [0]}
+  )  
+		begin
+			$display("cmd transfer %h%h%h is succeeded",cmd_buffer3,cmd_buffer2,cmd_buffer1);
+		end
+	else
+		begin
+			$display("cmd transfer %h%h%h  is failed",cmd_buffer3,cmd_buffer2,cmd_buffer1);
+		end 
+     ///
+ end
+ endtask
+
+ 
+
+
+endmodule
