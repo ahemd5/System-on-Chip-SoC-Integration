@@ -7,46 +7,46 @@ module tb_apb_master;
   // Signal declarations
   reg                 clk;
   reg                 rstn;
-  reg                 valid;
-  wire                ready;
-  reg [ADDR_WIDTH-1:0] addr;
-  reg                 rd0_wr1;  // 0 for read, 1 for write
-  reg [DATA_WIDTH-1:0] wr_data;
-  wire                rd_valid;
-  wire [DATA_WIDTH-1:0] rd_data;
+  reg                 i_valid;
+  wire                o_ready;
+  reg [ADDR_WIDTH-1:0] i_addr;
+  reg                 i_rd0_wr1;  // 0 for read, 1 for write
+  reg [DATA_WIDTH-1:0] i_wr_data;
+  wire                o_rd_valid;
+  wire [DATA_WIDTH-1:0] o_rd_data;
 
   // APB interface signals
-  wire                psel;
-  wire                penable;
-  wire                pwrite;
-  wire [ADDR_WIDTH-1:0] paddr;
-  wire [DATA_WIDTH-1:0] pwdata;
-  reg [DATA_WIDTH-1:0] prdata;
-  reg                 pready;
+  wire                o_psel;
+  wire                o_penable;
+  wire                o_pwrite;
+  wire [ADDR_WIDTH-1:0] o_paddr;
+  wire [DATA_WIDTH-1:0] o_pwdata;
+  reg [DATA_WIDTH-1:0] i_prdata;
+  reg                 i_pready;
   reg                 pslverr;
 
   // Instantiate DUT
   apb_master #(
-      .addr_width(ADDR_WIDTH),
-      .data_width(DATA_WIDTH)
+      .ADDR_WIDTH(ADDR_WIDTH),
+      .DATA_WIDTH(DATA_WIDTH)
   ) DUT (
       .i_clk_apb(clk),
       .i_rstn_apb(rstn),
-      .i_valid(valid),
-      .o_ready(ready),
-      .o_psel(psel),
-      .o_penable(penable),
-      .o_pwrite(pwrite),
-      .o_paddr(paddr),
-      .o_pwdata(pwdata),
-      .i_prdata(prdata),
-      .i_pready(pready),
+      .i_valid(i_valid),
+      .o_ready(o_ready),
+      .o_psel(o_psel),
+      .o_penable(o_penable),
+      .o_pwrite(o_pwrite),
+      .o_paddr(o_paddr),
+      .o_pwdata(o_pwdata),
+      .i_prdata(i_prdata),
+      .i_pready(i_pready),
       .i_pslverr(pslverr),
-      .i_addr(addr),
-      .i_rd0_wr1(rd0_wr1),
-      .i_wr_data(wr_data),
-      .o_rd_valid(rd_valid),
-      .o_rd_data(rd_data)
+      .i_addr(i_addr),
+      .i_rd0_wr1(i_rd0_wr1),
+      .i_wr_data(i_wr_data),
+      .o_rd_valid(o_rd_valid),
+      .o_rd_data(o_rd_data)
   );
 
   // Clock generation
@@ -58,7 +58,7 @@ module tb_apb_master;
   task reset();
     begin
       rstn = 0;
-      #20;
+      #17;
       rstn = 1;
     end
   endtask
@@ -66,31 +66,36 @@ module tb_apb_master;
   // Task for write operation
   task apb_write(input [ADDR_WIDTH-1:0] write_addr, input [DATA_WIDTH-1:0] write_data);
     begin
-      valid = 1;
-      addr = write_addr;
-      rd0_wr1 = 1;  // 1 for write
-      wr_data = write_data;
+      i_valid = 1;
+      i_addr = write_addr;
+      i_rd0_wr1 = 1;  // 1 for write
+      i_wr_data = write_data;
       @(posedge clk);
-      while (!ready) begin
+      while (!o_ready) begin
         @(posedge clk);
       end
-      valid = 0;
-      @(posedge clk);  // Wait one more clock cycle for the transaction to complete
+      i_valid = 0;
+      i_addr = 0;
+      i_rd0_wr1 = 0;  
+      i_wr_data = 0;
+      
     end
   endtask
 
   // Task for read operation
   task apb_read(input [ADDR_WIDTH-1:0] read_addr);
     begin
-      valid = 1;
-      addr = read_addr;
-      rd0_wr1 = 0;  // 0 for read
+      i_valid = 1;
+      i_addr = read_addr;
+      i_rd0_wr1 = 0;  // 0 for read
       @(posedge clk);
-      while (!ready) begin
+      while (!o_ready) begin
         @(posedge clk);
       end
-      valid = 0;
-      @(posedge clk);  // Wait for the data to be read
+      i_valid = 0;
+      i_addr = 0;
+      i_rd0_wr1 = 0;  
+      i_wr_data = 0;
     end
   endtask
 
@@ -99,47 +104,98 @@ module tb_apb_master;
     // Initialize inputs
     clk = 0;
     rstn = 1;
-    valid = 0;
-    addr = 0;
-    rd0_wr1 = 0;
-    wr_data = 0;
-    prdata = 32'h0;
-    pready = 0;
+    i_valid = 0;
+    i_addr = 0;
+    i_rd0_wr1 = 0;
+    i_wr_data = 0;
+    i_prdata = 32'h0;
+    i_pready = 0;
     pslverr = 0;
 
     // Apply reset
     reset();
 	
-    /****************** test 1 ************************/
+    /****** test 1 ********/
 	// Simulate APB write signal for write transaction without wait state 
-    pready = 1;
+    i_pready = 1;
 	
     // Write operation example
     $display("Starting write operation...");
-    apb_write(32'hA0000000, 32'h12345678);
-    #10;
+    apb_write(32'hA0000040, 32'h12345678);
+    #32;
 
-	/****************** test 2 ************************/
+	/****** test 2 ********/
     // Simulate APB ready signal for read transaction
-    pready = 1;
-    prdata = 32'hABCD1234;
+    i_pready = 1;
+    
 
     // Read operation example
     $display("Starting read operation...");
     apb_read(32'hA1000000);
     #10;
+    i_prdata = 32'hABCD1234;
+    
+    #22;
+     i_prdata = 32'h0;
 	
-	/****************** test 3 ************************/
-	// Simulate APB write signal for write transaction with wait state 
-    pready = 0;
+	/****** test 3 ********/
+	// Simulate APB write signal for write transaction with wait states 
+    i_pready = 0;
 	
 	// Write operation example
     $display("Starting read operation...");
     apb_write(32'hA1000500, 32'ha2535614);
-    #10;
+    #30;
 	
-    pready = 1;
+    i_pready = 1;
 	#10;
+	#42;
+	
+	/****** test 4 ********/
+    // Simulate APB ready signal for read transaction WITH WAIT STATE
+    i_pready = 0;
+    
+
+    // Read operation example
+    $display("Starting read operation...");
+    apb_read(32'hA111A000);
+    #40;
+    i_pready = 1;
+    i_prdata = 32'hEBBDF764;
+    
+    #10;
+     i_prdata = 32'h0;
+     #32;
+        /****** test 5 ********/
+	// Simulate APB two write signals without idle between them  
+    i_pready = 1;
+	
+    // Write operation example
+    $display("Starting write operation...");
+    apb_write(32'hA0B00E40, 32'h17745C78);
+    apb_write(32'hA0C04EC0, 32'hAB755678);
+    #32;
+    #30;
+         /****** test 6 ********/
+	// Simulate APB two write signals without idle between them  and with wait states  
+    i_pready = 0;
+	
+    // Write operation example
+    $display("Starting write operation...");
+    fork 
+    begin 
+    apb_write(32'hA0BB0E40, 32'h88745C78);
+    apb_write(32'hA0C05EC0, 32'hDD755678);
+  end 
+    begin 
+     #60;
+    i_pready = 1;
+  end
+    join 
+    
+    #32;
+    #20;
+     
 
     // Finish simulation
     $finish;
