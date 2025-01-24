@@ -54,7 +54,7 @@ module SPI_FSM (
    
     
 
-
+    reg flag_0; // 0bytes read
 // Internal Signals and Counters
     reg [7:0] cmd_counter;           // Command buffer counter
     reg [23:0] read_count;
@@ -66,7 +66,9 @@ module SPI_FSM (
 // Address counter for ahb interfacing
     reg [31:0] address;
     reg [23:0] bytecounter ;
-    wire fflag;
+    wire fflag; // 4 bytes read
+	reg flagend; // clock enableflag
+	 reg ffflag;
 
     // FSM State Encoding
     typedef enum logic [2:0] {
@@ -90,18 +92,22 @@ module SPI_FSM (
     
     state_tt ahb_state, ahb_nextstate;
     assign  o_spi_flash_irq= reg_24;
-    assign o_spi_flash_clk_en= (current_state==SEND_CMD || current_state== RECEIVE_DATA)?  1 : 0;
+     assign o_spi_flash_clk_en = (    (current_state==SEND_CMD || current_state== RECEIVE_DATA )     )?  1 : 0;
+        //&& (cmd_counter && bit_counter  ==1 )
     assign   fifo_write_enable =(!fifo_full && ( read_count % 4==0) && read_count != 0 &&(bit_counter2==0) )? 1:0;
     assign   wdata=(!fifo_full &&( read_count % 4==0) && read_count != 0 &&(bit_counter2==0) )? rx_data_reg: 32'bz;
     assign fflag = ( reg_08==4 )? ((ahb_state==checkempty ) ? 1 : 0):1;
     
-    assign   reg_24 =(fflag  && empty && ((bytecounter+4)==reg_08)) ? 1:0;   
+    assign   reg_24 =(     (fflag  && empty && ((bytecounter+4)==reg_08)) || flag_0   ) ? 1:0; 
+
+    
+	
     
     
-    module RisingEdgeDetector (
+    module RisingEdgeDetector  (
     input wire i_clk_spi_flash, // Clock signal
     input wire reg_20,          // Input signal to monitor
-    output reg edge_detect      // Output: High for one clock cycle on rising edge
+    output reg edge_detect    
 );
 
     // Internal register to hold the previous state of the signal
@@ -121,11 +127,16 @@ module SPI_FSM (
     end
 endmodule
 
- RisingEdgeDetector dut (
+ RisingEdgeDetector dut1 (
         .i_clk_spi_flash(i_clk_spi_flash),
         .reg_20(reg_20),
         .edge_detect(edge_detect)
     );
+    
+ 
+   
+
+    
     
 
     // State Transition Logic
@@ -151,6 +162,9 @@ endmodule
         o_spi_flash_csn= 1;
        current_byte='b0; 
        mux_mode = 2'b00;
+	   flag_0=1'b0;
+	   ffflag=0;
+	  
 
         
      
@@ -160,6 +174,7 @@ endmodule
         
         case (current_state)
             IDLE: begin
+			
                   
                
                 if ( edge_detect ) // Transaction start 
@@ -206,7 +221,16 @@ endmodule
                case (mux_mode)
             2'b00: begin
             if (bit_counter >= 7 && cmd_counter == (reg_00[3:0]-1)) begin
-                next_state = RECEIVE_DATA;
+			if (reg_08==0) 
+			begin
+			next_state = IDLE ;
+			flag_0=1;
+			ffflag=1;
+			end 
+			else 
+			begin
+            next_state = RECEIVE_DATA;
+			end
             end
             o_spi_flash_so0 = current_byte[7 - bit_counter]; // Send MSB
 
@@ -219,7 +243,16 @@ endmodule
 
             2'b01: begin
             if (bit_counter >= 6 && cmd_counter == (reg_00[3:0]-1)) begin
-                next_state = RECEIVE_DATA;
+               	if (reg_08==0) 
+			begin
+			next_state = IDLE ;
+			flag_0=1;
+			ffflag=1;
+			end 
+			else 
+			begin
+            next_state = RECEIVE_DATA;
+			end
             end
             o_spi_flash_so1 = current_byte[7 - bit_counter];
             o_spi_flash_so0 = current_byte[6 - bit_counter];
@@ -234,7 +267,16 @@ endmodule
 
         2'b10: begin
             if (bit_counter >= 4 && cmd_counter == (reg_00[3:0]-1)) begin
-                next_state = RECEIVE_DATA;
+               	if (reg_08==0) 
+			begin
+			next_state = IDLE ;
+			flag_0=1;
+			ffflag=1;
+			end 
+			else 
+			begin
+            next_state = RECEIVE_DATA;
+			end
             end
             o_spi_flash_so3 = current_byte[7 - bit_counter];
             o_spi_flash_so2 = current_byte[6 - bit_counter];
@@ -257,6 +299,8 @@ end
                      if ( (bit_counter2 ==0 && read_count== reg_08) ) begin
                     next_state =  IDLE;
                     o_spi_flash_csn=0;
+                    ffflag=1;
+					
                 end
                 
                     
@@ -321,7 +365,7 @@ end
                   
                    case (mux_mode)
                   2'b00: begin    
-                  if (next_state!= IDLE) rx_data_reg <= {rx_data_reg[30:0], i_spi_flash_si0};
+                  if (next_state!= IDLE) rx_data_reg <= {rx_data_reg[30:0], i_spi_flash_si1};
                  if (bit_counter2 ==7 )  read_count = read_count + 1;
                   
             
