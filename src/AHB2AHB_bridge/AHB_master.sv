@@ -94,9 +94,9 @@ module ahb_master #(
                     o_rd_valid = 1'b1; // Indicate valid read data
                     o_haddr   = i_addr_buffer;
                     o_hwrite  = i_rd0_wr1_buffer;
-                    o_htrans  = 1'b1;   // NONSEQ
+                    o_htrans  = 1'b1;
                     o_ready = 1'b1; // Ready for next transaction
-                    next_state = NONSEQ; // Stay in NONSEQ
+                    next_state = IDLE;
                 end else if (!i_rd0_wr1_buffer && i_hready && i_valid) begin // Read completion, new request
                     o_rd_data = i_hrdata; // Capture read data
                     o_rd_valid = 1'b1; // Indicate valid read data                    

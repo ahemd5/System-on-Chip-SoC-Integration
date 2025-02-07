@@ -1,7 +1,6 @@
 module synchronizer # ( 
 	parameter NUM_STAGES = 2 ,
-	parameter BUS_WIDTH = 66,
-	parameter F_DEPTH = 1
+	parameter BUS_WIDTH = 66
 	)(
 	input    wire                      CLK,
 	input    wire                      RST,
@@ -11,7 +10,7 @@ module synchronizer # (
 
 	reg   [NUM_STAGES-1:0] sync_reg [BUS_WIDTH-1:0] ;
 	integer  I ;
-						 
+	
 	//----------------- Multi flop synchronizer --------------
 
 	always @(posedge CLK or negedge RST)
@@ -26,7 +25,7 @@ module synchronizer # (
 			sync_reg[I] <= {sync_reg[I][NUM_STAGES-2:0],ASYNC[I]};
 		end  
 	end
-
+	
 	always @(*)
 	begin
 		for (I=0; I<BUS_WIDTH; I=I+1)

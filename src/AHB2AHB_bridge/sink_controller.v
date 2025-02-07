@@ -86,17 +86,18 @@ module sink_controller #(parameter ADDR_WIDTH = 32,
 		addr = 0;
 		valid = 0;
 		wr_data = 0;
-		o_sink_sleep_ack = 0;
+		o_sink_sleep_ack = i_sink_sleep_req;
 		sink_sleep_status = 0;
 		o_packet = 0;
 		req_fifo_rd_en = 0;
 		rsp_fifo_wr_en = 0;
-		reset_flag = 1;
+		reset_flag = i_rstn_sink;
 		case(current_state) 
 			normal : begin		
 				o_packet = packet;							
 				rsp_fifo_wr_en = rd_valid;
-				req_fifo_rd_en = (i_ready)? 1 : 0; 
+				valid = i_packet[packet_width-2];
+				req_fifo_rd_en = (i_ready && valid && !req_fifo_empty)? 1 : 0; 
 				if(req_fifo_rd_en) begin
 					rd0_wr1 = i_packet[packet_width-1];
 					addr = i_packet[packet_width-3:DATA_WIDTH];
@@ -112,27 +113,34 @@ module sink_controller #(parameter ADDR_WIDTH = 32,
 			end
 			
 			sleep : begin
-				sink_sleep_status = i_sink_sleep_req;
-				rd0_wr1 = i_packet[packet_width-1];
+				rsp_fifo_wr_en = rd_valid; 
 				valid = i_packet[packet_width-2];
-				addr = i_packet[packet_width-3:DATA_WIDTH];
-				wr_data = i_packet[DATA_WIDTH-1:0];	
-				rsp_fifo_wr_en = 0; 
-				req_fifo_rd_en = (i_ready && valid)? 1 : 0; 
-				if(req_fifo_empty && rsp_fifo_empty && i_sink_sleep_req) begin 
-					o_sink_sleep_ack = 1;
-					reset_flag = 0;
-				end else begin 
-					o_sink_sleep_ack = 0;
-					reset_flag = 1;
+				req_fifo_rd_en = (i_ready && valid && !req_fifo_empty)? 1 : 0; 
+				if(req_fifo_rd_en) begin
+					rd0_wr1 = i_packet[packet_width-1];
+					addr = i_packet[packet_width-3:DATA_WIDTH];
+					wr_data = i_packet[DATA_WIDTH-1:0];
 				end
+				else begin 
+					rd0_wr1 = 0;
+					addr = 0;
+					wr_data = 0;
+					valid = 0;
+				end 
 			end
 			
 			idle : begin
-				o_sink_sleep_ack = 0;
 				req_fifo_rd_en = 0;
 				rsp_fifo_wr_en = 0;
-				reset_flag = 0;
+				sink_sleep_status = 1;
+				if(source_sleep_status) begin 
+					reset_flag = 0;			// active low 
+					o_sink_sleep_ack = 0;
+				end 
+				else begin 
+					reset_flag = 1;
+					o_sink_sleep_ack = i_sink_sleep_req;
+				end 
 			end
 		endcase
     end

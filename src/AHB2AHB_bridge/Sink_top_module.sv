@@ -1,7 +1,8 @@
 module sink_top #(parameter ADDR_WIDTH = 32,
 	DATA_WIDTH = 32,
 	F_DEPTH = 4,
-	P_SIZE = 3					// p_size = log2(F_depth) + 1
+	P_SIZE = 3,				// p_size = log2(F_depth) + 1
+	NUM_STAGES = 2
 	)( 
 	input i_rstn_sink,
 	input i_clk_sink,
@@ -16,14 +17,16 @@ module sink_top #(parameter ADDR_WIDTH = 32,
     output [2:0] o_hsize,  
     output [ADDR_WIDTH-1:0] o_haddr, 
     output [DATA_WIDTH-1:0] o_hwdata,
-	// async interface
-	input [P_SIZE-1:0] req_wr_ptr_sync,
-	input [DATA_WIDTH+ADDR_WIDTH+1:0] req_FIFO_MEM_sync [F_DEPTH-1:0],
-	input [P_SIZE-1:0] rsp_rd_ptr_sync,
+	
+	// src
+	input [P_SIZE-1:0] req_wr_ptr,
+	input [DATA_WIDTH+ADDR_WIDTH+1:0] req_FIFO_MEM [F_DEPTH-1:0],
 	output [P_SIZE-1:0] req_rd_ptr,
+	
+	input [P_SIZE-1:0] rsp_rd_ptr,
 	output [P_SIZE-1:0] rsp_wr_ptr,
-	output [DATA_WIDTH:0] rsp_FIFO_MEM [F_DEPTH-1:0],
-	// src 
+	output reg [DATA_WIDTH:0] rsp_FIFO_MEM [F_DEPTH-1:0],
+ 
 	input source_sleep_status,
 	output sink_sleep_status
 	);
@@ -45,6 +48,43 @@ module sink_top #(parameter ADDR_WIDTH = 32,
 	wire rsp_sink_wr_en;
 	wire sink_fifos_reset;
 	wire [DATA_WIDTH+ADDR_WIDTH+1:0] o_r_data_sink;
+	wire [P_SIZE-1:0] req_wr_ptr_sync;
+	wire [P_SIZE-1:0] rsp_rd_ptr_sync;
+	
+	wire [DATA_WIDTH+ADDR_WIDTH+1:0] req_FIFO_MEM_sync [F_DEPTH-1:0];
+
+	/*
+	genvar i;
+	generate
+		for (i = 0; i < F_DEPTH; i = i + 1) begin
+			synchronizer_logic #(.NUM_STAGES(NUM_STAGES),.BUS_WIDTH(DATA_WIDTH+ADDR_WIDTH+2),.F_DEPTH(F_DEPTH),.P_SIZE(P_SIZE)
+			)U4_sync (
+			.CLK(i_clk_sink), .RST(i_rstn_sink),
+			.async_gray_ptr(req_wr_ptr),
+			.sync_gray_ptr(req_wr_ptr_sync),
+			.input_mem(req_FIFO_MEM[i]),
+			.my_mem(req_FIFO_MEM_sync[i])
+			);
+		end
+	endgenerate
+	*/
+	
+	synchronizer_logic #(.NUM_STAGES(NUM_STAGES),.BUS_WIDTH(DATA_WIDTH+ADDR_WIDTH+2),.F_DEPTH(F_DEPTH),.P_SIZE(P_SIZE)
+	)U4_sync (
+	.CLK(i_clk_sink), .RST(sink_fifos_reset),
+	.async_gray_ptr(req_wr_ptr),
+	.sync_gray_ptr(req_wr_ptr_sync),
+	.input_mem(req_FIFO_MEM),
+	.my_mem(req_FIFO_MEM_sync)
+	);
+	
+	synchronizer #(.BUS_WIDTH(P_SIZE))
+	u9_src2sink_req (
+	.CLK(i_clk_sink),
+	.RST(sink_fifos_reset),
+    .ASYNC(rsp_rd_ptr),
+    .SYNC(rsp_rd_ptr_sync)
+	);
 	
 	sink_controller #(.ADDR_WIDTH(ADDR_WIDTH),.DATA_WIDTH(DATA_WIDTH),.packet_width(ADDR_WIDTH+DATA_WIDTH+2))
 	u0_sink_ctrl(
@@ -82,7 +122,7 @@ module sink_top #(parameter ADDR_WIDTH = 32,
 	.o_empty(req_sink_empty),
 	.gray_rd_ptr(req_rd_ptr)
 	);
-
+	
 	Async_fifo_write #(.D_SIZE(DATA_WIDTH+1),.F_DEPTH(F_DEPTH),.P_SIZE(P_SIZE))
 	u2_rsp_sink_async_fifo(
 	.i_w_clk(i_clk_sink),
