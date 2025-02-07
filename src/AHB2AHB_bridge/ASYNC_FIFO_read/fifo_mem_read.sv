@@ -32,8 +32,13 @@ module fifo_mem_read #(
 	genvar j;
 	generate
 		for (j = 0; j < F_DEPTH; j = j + 1) begin 
-			always@(*) begin  
-				FIFO_MEM_int[j] <= FIFO_MEM_sync[j];
+			always@(posedge r_clk or negedge r_rstn) begin 
+				if(!r_rstn) begin 
+					FIFO_MEM_int[j] <= {D_SIZE{1'b0}};
+				end 
+				else begin 
+					FIFO_MEM_int[j] <= FIFO_MEM_sync[j];
+				end 
 			end
 		end
 	endgenerate
