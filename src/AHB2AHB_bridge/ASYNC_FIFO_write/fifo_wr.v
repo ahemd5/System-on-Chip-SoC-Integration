@@ -45,7 +45,7 @@ module fifo_wr #(
 	// generation of full flag
 	assign full = (sync_rd_ptr[P_SIZE-1]!= gray_w_ptr[P_SIZE-1] && sync_rd_ptr[P_SIZE-2]!= gray_w_ptr[P_SIZE-2] && sync_rd_ptr[P_SIZE-3:0]== gray_w_ptr[P_SIZE-3:0]) ;
 
-	assign empty = (gray_w_ptr == sync_rd_ptr) ;
+	assign empty = (sync_rd_ptr == (w_ptr ^ (w_ptr >> 1))) ;
 
 endmodule
 
