@@ -63,14 +63,14 @@ module source_controller #(parameter ADDR_WIDTH = 32,
 			
 			read : begin 
 				if(rd_valid) begin 
-					next_state = normal;
+					next_state = normal;				
 				end else begin 
 					next_state = read;
 				end 
 			end 
 			
 			sleep : begin
-				if (req_fifo_empty && rsp_fifo_empty) begin 
+				if (req_fifo_empty && rsp_fifo_empty && sink_sleep_status) begin 
 					next_state = idle;
 				end 
 				else begin 
@@ -92,7 +92,7 @@ module source_controller #(parameter ADDR_WIDTH = 32,
 	
 	always @(*) begin
 		req_fifo_wr_en = 0;
-		rsp_fifo_rd_en = 0;	
+		rsp_fifo_rd_en = 0;
 		source_sleep_status = 0;
 		o_packet = 0;
 		rd_data = 0;
@@ -102,59 +102,57 @@ module source_controller #(parameter ADDR_WIDTH = 32,
 		o_src_sleep_ack = i_src_sleep_req;
 		case(current_state) 
 			normal : begin
-				if(valid) begin
-					req_fifo_wr_en = 1;
-				end else begin
-					req_fifo_wr_en = 0;
-				end
+				// for req 
+				ready = (req_fifo_full)? 0 : 1;
+				req_fifo_wr_en = (valid)? 1 : 0;
 				o_packet = packet;
- 				ready = (req_fifo_full)? 0 : 1;
-				rsp_fifo_rd_en = (rsp_fifo_empty)? 0 : 1;
-				if(rsp_fifo_rd_en) begin 
+ 				
+				// for rsp
+				if(!rsp_fifo_empty) begin 
+					rsp_fifo_rd_en = 1;
 					rd_data = i_read_packet[DATA_WIDTH-1:0];
 					rd_valid = i_read_packet[DATA_WIDTH];
-				end else begin 
-					rd_data = 0;
-					rd_valid = 0;
-				end	
+				end // no else needed - defined before case
 			end
 			
 			read : begin 
+				// for req
 				req_fifo_wr_en = 0;
 				ready = 0;
+				// for rsp
 				rd_valid = i_read_packet[DATA_WIDTH];
 				rsp_fifo_rd_en = (!rsp_fifo_empty && rd_valid)? 1 : 0;
 				if(rsp_fifo_rd_en) begin 
 					rd_data = i_read_packet[DATA_WIDTH-1:0];
 					ready = 1;
-				end else begin 
-					rd_data = 0;
-					rd_valid = 0;
-					ready = 0;
 				end
 			end 
 			
 			sleep : begin
-				rsp_fifo_rd_en = rd_valid;
+				// for req 
 				req_fifo_wr_en = 0; 
 				ready = 0;
-				rd_data = i_read_packet[DATA_WIDTH-1:0];
-				rd_valid = i_read_packet[DATA_WIDTH];
+				// for rsp
+				if(!rsp_fifo_empty) begin 
+					rsp_fifo_rd_en = 1;
+					rd_data = i_read_packet[DATA_WIDTH-1:0];
+					rd_valid = i_read_packet[DATA_WIDTH];
+					ready = 1;
+				end
+				// sleep status
+				o_src_sleep_ack = i_src_sleep_req;
+				source_sleep_status = (req_fifo_empty && rsp_fifo_empty)? 1 : 0;
 			end
 			
 			idle : begin
+				reset_flag = 0;	
+				o_src_sleep_ack = 0;
+				source_sleep_status = 1;
+				// for req 
 				ready = 0;
-				rsp_fifo_rd_en = 0;
 				req_fifo_wr_en = 0;
-				if(sink_sleep_status) begin 
-					reset_flag = 0;			// active low 
-					o_src_sleep_ack = 0;
-				end 
-				else begin 
-					reset_flag = 1;
-					o_src_sleep_ack = i_src_sleep_req;
-				end 
-				source_sleep_status = 1; 
+				// for rsp 
+				rsp_fifo_rd_en = 0;
 			end
 		endcase
     end

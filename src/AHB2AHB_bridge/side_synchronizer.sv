@@ -25,6 +25,9 @@ module synchronizer_logic # (
 		begin
 			for (I=0; I < P_SIZE; I=I+1)
 				sync_reg[I] <= 'b0;
+			
+			prev_synced_gray <= {BUS_WIDTH{1'b0}};
+			sync_gray_ptr <= {BUS_WIDTH{1'b0}};
 		end
 		else begin
 		for (I=0; I < P_SIZE; I=I+1)

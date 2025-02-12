@@ -1,4 +1,4 @@
-module AHB_AHB_bridge #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32, DEPTH = 4, P_SIZE = 3, F_DEPTH = 4)(
+module AHB_AHB_bridge #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32, P_SIZE = 8, F_DEPTH = 128)(
 	input 	i_clk_src,
 	input 	i_rstn_src,
 	input 	i_src_sleep_req,
