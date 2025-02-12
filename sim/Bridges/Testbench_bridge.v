@@ -1,8 +1,8 @@
 `timescale 1ns/1ps
 module bridge_tb ();
-	parameter DATA_WIDTH = 32, ADDR_WIDTH = 32, DEPTH = 4, P_SIZE = 3, F_DEPTH = 4;
+	parameter DATA_WIDTH = 32, ADDR_WIDTH = 32, P_SIZE = 3, F_DEPTH = 4;
 	parameter period_src = 10;
-	parameter period_sink = 10.5;
+	parameter period_sink = 60;
 	reg i_clk_src_tb;
 	reg i_rstn_src_tb;
 	reg i_src_sleep_req_tb;
@@ -146,7 +146,8 @@ module bridge_tb ();
 		#(period_src);
 		i_hwdata_tb = 'heeee;
 		
-		#(10*period_src);
+		wait(DUT.U1_sink.u0_sink_ctrl.reset_flag == 0)
+		#(5*period_sink);
 		$stop;
 	end
 
@@ -154,10 +155,10 @@ module bridge_tb ();
 	task reset;
 	begin 
 		// reset 
-		#(period_src);
+		#(period_sink);
 		i_rstn_src_tb = 0;
 		i_rstn_sink_tb = 0;
-		#(period_src);
+		#(period_sink);
 		i_rstn_src_tb = 1;
 		i_rstn_sink_tb = 1;
 	end 
