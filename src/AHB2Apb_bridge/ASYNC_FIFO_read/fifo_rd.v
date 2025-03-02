@@ -26,7 +26,7 @@ module fifo_rd #(
 	
 	// generation of read address
 	assign rd_addr = rd_ptr[P_SIZE-2:0] ;
-
+	
 	// converting binary read pointer to gray coded
 	always @(posedge r_clk or negedge r_rstn)
 	begin
@@ -34,7 +34,7 @@ module fifo_rd #(
 			gray_rd_ptr <= 0 ;
 		end
 		else begin
-			gray_rd_ptr = rd_ptr ^ (rd_ptr >> 1);
+			gray_rd_ptr <= rd_ptr ^ (rd_ptr >> 1);
 		end
 	end
 	
