@@ -1,43 +1,37 @@
-module arbiter #(parameter NUM_MASTERS = 2, NUM_SLAVES = 2)(
-    input  wire    i_clk,
-    input  wire    [NUM_SLAVES-1:0] i_req [NUM_MASTERS-1:0],   // Request signals from decoders (o_hsel)
-    input  wire i_hreadyout,                                  // Ready signal from the slave
-    input  wire [31:0]	s,
-    output reg  [NUM_MASTERS-1:0] o_grant ,                     // Grant signal to the selected master
-    output reg  [NUM_MASTERS-1:0] o_mhready,                      // Ready signal for the selected master
-    output reg  o_shready,
-	output reg  o_hselx
-	);
+module arbiter #(
+    parameter NUM_MASTERS = 2  // Number of masters
+)(
+    input  wire                   i_clk,
+    input  wire                   i_reset_n,
+    input  reg  [NUM_MASTERS-1:0] i_req,        // Request signals from each master
+	output reg  [NUM_MASTERS-1:0] o_grant       // Grant signals to each master
+);
 
-    integer m;
+    logic [$clog2(NUM_MASTERS)-1:0] current_priority;
+	logic [31:0] index;
 
-    always @(posedge i_clk) begin
-        if (i_hreadyout) begin
-            for (m = 0; m < NUM_MASTERS; m = m + 1) begin
-                if (i_req[m][s]) begin
-                    o_grant[m] <= 1;              // Grant master m
-                    o_mhready[m] <= 1;            // Indicate slave s is ready
-                    o_shready <= 1;
-					o_hselx <= 1;
-					break;                         // Break first loops
-                end
-                else begin 
-                    o_grant[m] <= 0;              // Grant master m
-                    o_mhready[m] <= 0;            // Indicate slave s is ready
-					o_shready <= 0;
-					o_hselx <= 0;
-				end 
+    always @(posedge i_clk or negedge i_reset_n) begin
+        if (!i_reset_n) begin
+            current_priority <= 0;
+			index<=0;
+        end else begin
+            // Rotate priority if a grant was made
+            if (|o_grant) begin
+                current_priority <= (current_priority + 1) % NUM_MASTERS;
             end
         end
-         
-		else begin
-            for (m = 0; m < NUM_MASTERS; m = m + 1) begin
-                o_grant[m] <= 0;              // Grant master m
-                o_mhready[m] <= 0;            // Indicate slave s is ready
-				o_shready <= 0;
-				o_hselx <= 0;
-			end
-        end
+    end
+
+    always @(*) begin
+        o_grant = 0;  // Initialize all grants to 0
+		// Check requests starting from the current priority
+		for (int i = 0; i < NUM_MASTERS; i++) begin
+			index = (current_priority + i) % NUM_MASTERS;
+			if (i_req[index]) begin
+				o_grant[index] = 1;
+				break;  // Grant to the first requesting master in the current priority order
+		    end
+		end 
     end
 
 endmodule
