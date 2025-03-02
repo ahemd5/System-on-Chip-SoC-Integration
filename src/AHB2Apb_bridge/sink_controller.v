@@ -27,9 +27,7 @@ module sink_controller #(parameter ADDR_WIDTH = 32,
 	output reg 					reset_flag
 	);
 	
-	wire [packet_width-1:0] packet;
-	
-	assign packet = {rd_valid, rd_data}; 		// Packet data
+	reg [DATA_WIDTH:0] packet;
 	
 	// fsm 
 	parameter 	normal = 2'b00,
@@ -60,7 +58,7 @@ module sink_controller #(parameter ADDR_WIDTH = 32,
 			end
 			
 			sleep : begin
-				if (req_fifo_empty && rsp_fifo_empty) begin 
+				if (req_fifo_empty && rsp_fifo_empty && source_sleep_status) begin 
 					next_state = idle;
 				end 
 				else begin 
@@ -76,8 +74,6 @@ module sink_controller #(parameter ADDR_WIDTH = 32,
 					next_state = idle;
 				end  
 			end
-			
-	
 		endcase
     end
 	
@@ -86,53 +82,61 @@ module sink_controller #(parameter ADDR_WIDTH = 32,
 		addr = 0;
 		valid = 0;
 		wr_data = 0;
-		o_sink_sleep_ack = 0;
+		o_sink_sleep_ack = i_sink_sleep_req;
 		sink_sleep_status = 0;
 		o_packet = 0;
 		req_fifo_rd_en = 0;
 		rsp_fifo_wr_en = 0;
-		reset_flag = 1;
+		reset_flag = i_rstn_sink;
+		packet = {rd_valid, rd_data};
 		case(current_state) 
 			normal : begin		
-				o_packet = packet;							
+				// for rsp
 				rsp_fifo_wr_en = rd_valid;
-				req_fifo_rd_en = (i_ready)? 1 : 0; 
-				if(req_fifo_rd_en) begin
+				o_packet = packet;	
+				
+				// for req
+				valid = i_packet[packet_width-2];
+				if(i_ready && !req_fifo_empty && valid) begin
+					req_fifo_rd_en = 1;
 					rd0_wr1 = i_packet[packet_width-1];
 					addr = i_packet[packet_width-3:DATA_WIDTH];
 					wr_data = i_packet[DATA_WIDTH-1:0];
-					valid = i_packet[packet_width-2];
-				end
-				else begin 
-					rd0_wr1 = 0;
-					addr = 0;
-					wr_data = 0;
-					valid = 0;
 				end 
+				else 
+					valid = 0;
 			end
 			
 			sleep : begin
+				// for sleep 
 				sink_sleep_status = i_sink_sleep_req;
-				rd0_wr1 = i_packet[packet_width-1];
+				o_sink_sleep_ack = i_sink_sleep_req;
+				
+				// for rsp 
+				rsp_fifo_wr_en = rd_valid;
+				o_packet = packet;	
+				
+				// for req
 				valid = i_packet[packet_width-2];
-				addr = i_packet[packet_width-3:DATA_WIDTH];
-				wr_data = i_packet[DATA_WIDTH-1:0];	
-				rsp_fifo_wr_en = 0; 
-				req_fifo_rd_en = (i_ready && valid)? 1 : 0; 
-				if(req_fifo_empty && rsp_fifo_empty && i_sink_sleep_req) begin 
-					o_sink_sleep_ack = 1;
-					reset_flag = 0;
-				end else begin 
-					o_sink_sleep_ack = 0;
-					reset_flag = 1;
-				end
+				if(i_ready && !req_fifo_empty && valid) begin
+					req_fifo_rd_en = 1;
+					rd0_wr1 = i_packet[packet_width-1];
+					addr = i_packet[packet_width-3:DATA_WIDTH];
+					wr_data = i_packet[DATA_WIDTH-1:0];
+				end 
+				else 
+					valid = 0;
 			end
 			
 			idle : begin
+				sink_sleep_status = 1;
 				o_sink_sleep_ack = 0;
-				req_fifo_rd_en = 0;
-				rsp_fifo_wr_en = 0;
 				reset_flag = 0;
+				// for rsp
+				rsp_fifo_wr_en = 0;
+				// for req
+				req_fifo_rd_en = 0;
+				
 			end
 		endcase
     end
