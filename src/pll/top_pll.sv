@@ -8,14 +8,15 @@ module top_pll_system (
     output wire        o_rd_valid,
     output wire        o_ready,
     input  wire        xo_clk,
-    input  wire        reset_n
-    
+    input  wire        reset_n,
+    output wire        pll_clk,
+      output wire        soc_clk_select
 );
 
-    wire        pll_clk;
+    
     wire        pll_locked;
     wire        pll_error;
-    wire        soc_clk_select;
+   
     wire        pll_enable;
     wire        pll_bypass;
     wire        pll_reset;
@@ -58,4 +59,5 @@ module top_pll_system (
     );
 
 endmodule
+
 
