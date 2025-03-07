@@ -6,7 +6,7 @@ module ahb_slave #(
     input  logic                  i_rstn_ahb,
 
     input  logic                  i_hready,
-    input  logic                  i_htrans,
+    input  logic [1:0]            i_htrans,
     input  logic [2:0]            i_hsize,
     input  logic                  i_hwrite,
     input  logic [ADDR_WIDTH-1:0] i_haddr,
@@ -16,7 +16,7 @@ module ahb_slave #(
     input  logic                  i_ready,
     input  logic                  i_rd_valid,
     input  logic [DATA_WIDTH-1:0] i_rd_data,
-      output reg                    o_valid,
+    output reg                    o_valid,
     output reg                    o_rd0_wr1,
     output reg [DATA_WIDTH-1:0]   o_wr_data,
     output reg [ADDR_WIDTH-1:0]   o_addr,
@@ -31,7 +31,6 @@ module ahb_slave #(
 
   
 );
-
     typedef enum logic {
         IDLE = 1'b0,
         NONSEQ = 1'b1
@@ -73,7 +72,7 @@ reg readyflag ;
 
     always @(*) begin
         next_state = current_state;
-       if (i_htrans) begin
+       if (|i_htrans) begin
                     next_state = NONSEQ;					
                 end else begin
                     next_state = IDLE;
@@ -98,7 +97,7 @@ reg readyflag ;
                      o_valid=0;
 		                addr_buffer_comb  = 'b0;
                     write_buffer_comb = 1'b0;			                 
-                 if (i_htrans) begin			
+                 if (|i_htrans) begin			
                 				if (i_hwrite) begin 		                 
                     addr_buffer_comb = i_haddr;
                     write_buffer_comb = i_hwrite;
@@ -115,7 +114,7 @@ reg readyflag ;
             end
 			
             NONSEQ: begin                  
-                if (i_hselx && i_htrans ) begin
+                if (i_hselx && |i_htrans ) begin
                 if (flag) begin 
                      o_wr_data = i_hwdata; 
                 o_rd0_wr1 = write_buffer;
@@ -163,7 +162,7 @@ reg readyflag ;
       
       end 
       //
-    else if (!i_htrans ) begin 
+    else if (i_htrans == 2'b00 ) begin 
       if (write_buffer) 
         begin 
            o_valid=1;
@@ -171,15 +170,15 @@ reg readyflag ;
                 o_rd0_wr1 = write_buffer;
                 o_addr    = addr_buffer; 
         end 
-      else begin 
-          o_rd0_wr1    = 1'b0;
+      else begin 
+          o_rd0_wr1    = 1'b0;
           flagcomb=0;
           o_wr_data    = 'b0;
           o_addr       = 'b0;					
           o_valid=0;
 		      addr_buffer_comb  = 'b0;
           write_buffer_comb = 1'b0;
-      end
+      end
        
       
     end 
