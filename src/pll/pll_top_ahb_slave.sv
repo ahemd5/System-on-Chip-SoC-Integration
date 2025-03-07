@@ -21,11 +21,11 @@ module PLL_top_ahb (
 
     // PLL System Interface Signals
     input  wire                   xo_clk,
-    input  wire                   reset_n
-
+    input  wire                   reset_n,
+    output wire                   clk
    
 );
-
+    wire soc_clk_select;
     // Internal signals for connecting top_pll_system and ahb_slave
     wire [31:0]                   i_address;
     wire                          i_rd0_wr1;
@@ -46,7 +46,10 @@ module PLL_top_ahb (
         .o_rd_valid(o_rd_valid),
         .o_ready(o_ready),
         .xo_clk(xo_clk),
-        .reset_n(reset_n)
+        .reset_n(reset_n),
+        .pll_clk(pll_clk),
+        .soc_clk_select(soc_clk_select)
+        
     );
 
     // Instantiate the ahb_slave module
@@ -79,6 +82,6 @@ module PLL_top_ahb (
     );
 
     
-  
+  assign clk=(soc_clk_select)? xo_clk:pll_clk;
 
 endmodule
