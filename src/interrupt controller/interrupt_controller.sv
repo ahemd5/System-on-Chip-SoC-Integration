@@ -1,5 +1,5 @@
 module interrupt_controller (
-    input  logic         pclk,      // APB Clock
+    input  logic         PCLK,      // APB Clock
     input  logic         rstn,   // APB Reset (active low)
     input  logic         PSEL,      // APB Select
     input  logic         PENABLE,   // APB Enable
@@ -31,13 +31,13 @@ logic [31:0] pending_irq;
 logic [4:0] highest_irq;  
 logic [3:0] assigned_int; 
 logic [31:0]irq_f;      
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn) 
         irq_f <= 32'b0;
     else
           irq_f <= IRQ;
 end
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn) 
         irq_status <= 32'b0;
      else begin
@@ -51,7 +51,7 @@ always_ff @(posedge pclk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn) begin
         for (int i = 0; i < 32; i++) begin
             irq_priority[i] <= 0;
@@ -61,7 +61,7 @@ always_ff @(posedge pclk or negedge rstn) begin
             irq_priority[index] <= PWDATA[4:0];
     end
 end
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn) begin
         for (int i = 0; i < 32; i++) begin
             irq_map[i] <= 0;
@@ -71,7 +71,7 @@ always_ff @(posedge pclk or negedge rstn) begin
             irq_map[index] <= PWDATA[3:0];
     end
 end
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn) begin
         for (int i = 0; i < 32; i++) begin
             irq_vector_table[i] <= 0;
@@ -82,7 +82,7 @@ always_ff @(posedge pclk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn) begin
         irq_enable  <= 32'b0;
         irq_disable <= 32'b0;
@@ -97,7 +97,7 @@ always_ff @(posedge pclk or negedge rstn) begin
             endcase
         end 
     end
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn)
         PRDATA <= 32'b0;
         else if (PSEL && PENABLE && !PWRITE) begin
@@ -114,7 +114,7 @@ always_ff @(posedge pclk or negedge rstn) begin
             endcase
         end
 end
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn) begin
         PREADY <= 1'b0;
          PSLVERR <= 1'b0;
@@ -137,14 +137,14 @@ always_comb begin
         end
     end
 end
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn)
         INT <= 4'b0000;
     else begin
         INT[assigned_int] <= (highest_irq != 5'b11111);
     end
 end
-always_ff @(posedge pclk or negedge rstn) begin
+always_ff @(posedge PCLK or negedge rstn) begin
     if (!rstn)
         IRQ_VECTOR <= 5'b11111;
     else
