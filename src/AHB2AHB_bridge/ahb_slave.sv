@@ -63,7 +63,7 @@ module ahb_slave #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32
 
     always @(*) begin
         next_state = current_state;
-       if (i_htrans) begin
+       if (|i_htrans) begin
                     next_state = NONSEQ;					
                 end else begin
                     next_state = IDLE;
@@ -88,7 +88,7 @@ module ahb_slave #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32
                 o_valid = 0;
 		        addr_buffer_comb = 'b0;
                 write_buffer_comb = 1'b0;			                 
-                if (i_htrans) begin			
+                if (|i_htrans) begin			
                 	if (i_hwrite) begin 		                 
 						addr_buffer_comb = i_haddr;
 						write_buffer_comb = i_hwrite; 
@@ -102,7 +102,7 @@ module ahb_slave #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32
             end
 			
             NONSEQ: begin                  
-                if (i_hselx && i_htrans ) begin
+                if (i_hselx && |i_htrans ) begin
 					if (flag) begin 
 						o_wr_data = i_hwdata; 
 						o_rd0_wr1 = write_buffer;
@@ -147,7 +147,7 @@ module ahb_slave #(parameter DATA_WIDTH = 32, ADDR_WIDTH = 32
 						endcase   
 					end    
 				end 
-				else if (!i_htrans ) begin 
+				else if (i_htrans == 2'b00 ) begin 
 					if (write_buffer) 
 					begin 
 					    o_valid=1;
